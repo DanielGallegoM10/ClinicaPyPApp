@@ -147,8 +147,8 @@ fun CustomButton(
     Button(
         onClick = { accionClick() },
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = Color(0xFF3C98FF),
+            contentColor = MaterialTheme.colorScheme.primary
         ),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier

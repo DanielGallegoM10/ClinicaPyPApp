@@ -75,12 +75,23 @@ fun LoginScreen(navigateToMainScreen: () -> Unit) {
             CustomTextField(textoUsuario, "Introduzca su usuario") { textoUsuario = it }
             Spacer(modifier = Modifier.weight(1f))
             CustomPassTextField(textoPass, "Introduzca su contraseña") { textoPass = it }
+
+            if (loginError != null) {
+                CustomAlertDialog(
+                    titulo = "Error de inicio de sesión",
+                    mensaje = loginError!!,
+                    onDismiss = { loginError = null },
+                    onConfirm = { loginError = null }
+                )
+            }
+
             Text("¿Ha olvidado su contraseña?", fontSize = 16.sp, modifier = Modifier.clickable {
                 if (textoUsuario.isEmpty()){
                     incorrectoCambioPass = true
                 }else{
                     cambiaContrasena = true }}, color = Color.Blue)
             Spacer(modifier = Modifier.weight(1f))
+
             CustomButton("Iniciar sesión", enabled = !isLoading) { // <<== Modifica el bloque onClick
                 // === Lógica de llamada a la API dentro de una Coroutine ===
                 // Lanzar una coroutine cuando se presiona el botón
