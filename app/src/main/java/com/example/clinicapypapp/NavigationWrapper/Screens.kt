@@ -1,14 +1,15 @@
 package com.example.clinicapypapp.NavigationWrapper
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 @Serializable
-object LoginScreen
+object LoginDest
 
 @Serializable
-object MainScreen
+object MainDest
 
 @Serializable
-data class ServicesScreen(val sectionName: String)
+data class ServicesDest(val sectionName: String)
+
+@Serializable
+data class CitaDest(val sectionName: String)

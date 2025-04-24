@@ -16,20 +16,27 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -40,6 +47,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,10 +58,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,6 +75,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -77,7 +90,217 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.entities.Section
 import com.example.clinicapypapp.entities.Service
+import java.sql.Date
+import java.text.SimpleDateFormat
+import java.util.Locale
 
+
+
+
+// --- Definiciones de TimeSlotStatus y TimeSlotData (como arriba) ---
+enum class TimeSlotStatus {
+    Available, Taken, Selected
+}
+data class TimeSlotData(
+    val time: String,
+    val status: TimeSlotStatus
+)
+
+
+
+@Composable
+fun TimeSlotGrid(
+    timeSlots: List<TimeSlotData>,
+    columns: Int = 3, // Número de columnas en la cuadrícula
+    onTimeSelected: (String) -> Unit, // Dejamos la lambda aunque no la usemos aún
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns),
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp), // Espacio vertical entre filas
+        horizontalArrangement = Arrangement.spacedBy(10.dp) // Espacio horizontal entre columnas
+    ) {
+        items(timeSlots) { timeSlotData ->
+            TimeSlotItem(
+                timeSlotData = timeSlotData,
+                onClick = {
+                    if (timeSlotData.status == TimeSlotStatus.Available) {
+                    onTimeSelected(timeSlotData.time)
+                } }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class) // Necesario para el onClick de Card
+@Composable
+private fun TimeSlotItem(
+    timeSlotData: TimeSlotData,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val cardColors = when (timeSlotData.status) {
+        TimeSlotStatus.Available -> CardDefaults.cardColors(
+            containerColor = Color.White, // Disponible: Fondo blanco
+            contentColor = MaterialTheme.colorScheme.onSurface // Texto oscuro
+        )
+        TimeSlotStatus.Taken -> CardDefaults.cardColors(
+            containerColor = Color.LightGray.copy(alpha = 0.6f), // Ocupada: Fondo gris claro semitransparente
+            contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) // Texto grisáceo
+        )
+        TimeSlotStatus.Selected -> CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary, // Seleccionada: Fondo azul (color primario del tema)
+            contentColor = MaterialTheme.colorScheme.onPrimary // Texto blanco (o el color sobre primario)
+        )
+    }
+
+    val cardElevation = if (timeSlotData.status == TimeSlotStatus.Taken) {
+        CardDefaults.cardElevation(defaultElevation = 1.dp) // Menos elevación si está ocupada
+    } else {
+        CardDefaults.cardElevation(defaultElevation = 4.dp)
+    }
+
+    val border = if (timeSlotData.status == TimeSlotStatus.Available) {
+        BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)) // Borde sutil si está disponible
+    } else {
+        null
+    }
+
+
+    Card(
+        modifier = modifier
+            .aspectRatio(1.8f) // Proporción para que sea más ancho que alto
+            .height(IntrinsicSize.Min), // Ajusta la altura al contenido (puede necesitar ajustes)
+        shape = RoundedCornerShape(8.dp),
+        colors = cardColors,
+        elevation = cardElevation,
+        border = border,
+        onClick = onClick, // Asociamos el click (aunque la lambda esté vacía ahora)
+        enabled = timeSlotData.status != TimeSlotStatus.Taken // La tarjeta no es interactiva si está ocupada
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = timeSlotData.time,
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp, // Tamaño de fuente ajustado
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerField(
+    labelName: String,
+    selectedDateMillis: Long?,
+    onDateSelected: (Long?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    val displayText = selectedDateMillis?.let { dateFormatter.format(Date(it)) } ?: ""
+
+    // ---- Contenedor Box que captura el clic ----
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            // Aplicamos el clickable al Box
+            .clickable { showDialog = true }
+    ) {
+        // ---- TextField (ahora deshabilitado para interacción directa) ----
+        OutlinedTextField(
+            value = displayText,
+            onValueChange = { },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp), // Padding aplicado aquí
+            label = { Text(text = labelName) },
+            placeholder = { Text("Selecciona una fecha") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "Seleccionar fecha"
+                )
+            },
+            enabled = false, // <--- Deshabilitamos el TextField
+            colors = TextFieldDefaults.colors(
+                // --- Colores para cuando está DESHABILITADO ---
+                // Queremos que parezca habilitado visualmente
+                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                disabledContainerColor = Color.Transparent,
+                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledIndicatorColor = MaterialTheme.colorScheme.outline, // Borde gris normal
+                // --- Colores 'focused' y 'unfocused' que ya no se usarán pero los dejamos ---
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                cursorColor = Color.Transparent // No debería aparecer cursor
+            )
+        )
+    } // Fin del Box
+
+    // ---- El DatePickerDialog (sin cambios) ----
+    if (showDialog) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = selectedDateMillis ?: System.currentTimeMillis()
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDateSelected(datePickerState.selectedDateMillis)
+                        showDialog = false
+                    }
+                ) { Text("Aceptar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) { Text("Cancelar") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+}
+
+@Composable
+fun CustomDescriptionTextField(
+    texto: String,
+    labelName: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = texto,
+        onValueChange = onValueChange,
+        label = { Text(text = labelName) },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+            cursorColor = MaterialTheme.colorScheme.primary
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+        // Opcional: Puedes añadir un número máximo de líneas si quieres limitarlo
+        // maxLines = 5
+             .defaultMinSize(minHeight = 200.dp)
+    )
+}
 
 @Composable
 fun CustomTextField(
