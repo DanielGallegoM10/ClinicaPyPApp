@@ -2,6 +2,7 @@ package com.example.clinicapypapp.data.api
 
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.*
 //import io.ktor.client.plugins.logging.* // Opcional: para ver los logs de las peticiones
 import io.ktor.serialization.kotlinx.json.*
@@ -9,30 +10,36 @@ import kotlinx.serialization.json.Json
 
 object KtorClient { // Usamos un objeto singleton para tener una sola instancia
 
-    private const val BASE_URL = "http://212.227.145.78:8080/" // ¡CAMBIA ESTO POR TU IP REAL Y PUERTO!
-    // Si después configuras Nginx con dominio y HTTPS, cambiarías esto a "https://tu.dominio.com/"
+    private const val BASE_URL = "http://212.227.145.78:8080/" // ¡TU IP REAL Y PUERTO!
 
     val httpClient = HttpClient(Android) {
         // Configura el motor para Android
         engine {
-            // Puedes añadir configuraciones específicas del motor Android aquí si las necesitas
+            // ...
         }
+
+        // === AÑADIDO: Plugin para configurar peticiones por defecto, incluyendo la URL base ===
+        install(DefaultRequest) {
+            url(BASE_URL) // <<== Configura el cliente para usar esta URL como base
+            // Si necesitas añadir headers por defecto (ej. para autenticación), también irían aquí
+            // header(HttpHeaders.Authorization, "Bearer your_token")
+        }
+        // =====================================================================================
 
         // Instala el plugin de Negociación de Contenido para JSON
         install(ContentNegotiation) {
             json(Json {
-                ignoreUnknownKeys = true // Ignora campos en el JSON de la API que no estén en tus modelos Kotlin
-                isLenient = true // Permite ciertos formatos JSON no estrictos
+                ignoreUnknownKeys = true
+                isLenient = true
             })
         }
 
         // Opcional: Instala el plugin de Logging (muy útil para debug)
-//        install(Logging) {
+//        install(Logging) { // <<== Si lo tenías comentado, descoméntalo temporalmente para ver los logs de red
 //            logger = Logger.DEFAULT
-//            level = LogLevel.ALL // Loggea todos los detalles de la petición y respuesta (útil en desarrollo)
-//            // Para producción, considera LogLevel.NONE o LogLevel.INFO
+//            level = LogLevel.ALL // Ponlo en ALL para ver qué URL está intentando conectar
 //        }
 
-        // Puedes añadir otros plugins aquí: timeouts, caché, interceptores, etc.
+        // Puedes añadir otros plugins aquí
     }
 }
