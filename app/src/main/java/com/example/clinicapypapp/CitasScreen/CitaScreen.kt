@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +38,7 @@ import java.sql.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitaScreen(sectionName: String, navigateToBack: () -> Unit) {
     var descriptionText by rememberSaveable { mutableStateOf("") }
@@ -55,75 +60,88 @@ fun CitaScreen(sectionName: String, navigateToBack: () -> Unit) {
             )
         )
     }
-
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Image(
-            painter = painterResource(R.drawable.fondo),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            alpha = 0.4f,
-            modifier = Modifier.fillMaxSize()
-        )
-        Column(
-            Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp, start = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                CustomBackIcon { navigateToBack() }
-            }
-            CustomTitleLuxury(sectionName)
-            Spacer(modifier = Modifier.weight(1f))
-            CustomDescriptionTextField(
-                texto = descriptionText,
-                labelName = "Cuentanos tu necesidad",
-                onValueChange = { descriptionText = it }
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            DatePickerField(
-                labelName = "Fecha de la cita",
-                selectedDateMillis = selectedDate,
-                onDateSelected = { millis ->
-                    selectedDate = millis
-                }
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            selectedDate?.let {
-                val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                Text("Fecha seleccionada: ${dateFormatter.format(Date(it))}")
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            TimeSlotGrid(
-                // Pasamos la lista actual del estado
-                timeSlots = initialTimeSlots.value,
-                onTimeSelected = { timeClicked ->
-                    // --- Lógica de selección ---
-                    // 1. Actualiza la hora seleccionada
-                    selectedTimeSlot = timeClicked
-
-                    // 2. Crea una NUEVA lista basada en la selección
-                    val updatedList = initialTimeSlots.value.map { slot ->
-                        when {
-                            // Si esta es la hora que se acaba de clicar -> Selected
-                            slot.time == timeClicked -> slot.copy(status = TimeSlotStatus.Selected)
-                            // Si esta era la hora previamente seleccionada -> Available de nuevo
-                            slot.status == TimeSlotStatus.Selected -> slot.copy(status = TimeSlotStatus.Available)
-                            // Para las demás (Available, Taken), se quedan como están
-                            else -> slot
-                        }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                },
+                actions = {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp, start = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        CustomBackIcon { navigateToBack() }
                     }
-                    // 3. Actualiza el estado de la lista para que Compose redibuje
-                    initialTimeSlots.value = updatedList
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                )
             )
-            Spacer(modifier = Modifier.weight(1f))
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Image(
+                painter = painterResource(R.drawable.fondo),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                alpha = 0.4f,
+                modifier = Modifier.fillMaxSize()
+            )
+            Column(
+                Modifier.fillMaxSize().padding(innerPadding),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CustomTitleLuxury(sectionName)
+                Spacer(modifier = Modifier.weight(1f))
+                CustomDescriptionTextField(
+                    texto = descriptionText,
+                    labelName = "Cuentanos tu necesidad",
+                    onValueChange = { descriptionText = it }
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                DatePickerField(
+                    labelName = "Fecha de la cita",
+                    selectedDateMillis = selectedDate,
+                    onDateSelected = { millis ->
+                        selectedDate = millis
+                    }
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                selectedDate?.let {
+                    val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    Text("Fecha seleccionada: ${dateFormatter.format(Date(it))}")
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                TimeSlotGrid(
+                    // Pasamos la lista actual del estado
+                    timeSlots = initialTimeSlots.value,
+                    onTimeSelected = { timeClicked ->
+                        // --- Lógica de selección ---
+                        // 1. Actualiza la hora seleccionada
+                        selectedTimeSlot = timeClicked
+
+                        // 2. Crea una NUEVA lista basada en la selección
+                        val updatedList = initialTimeSlots.value.map { slot ->
+                            when {
+                                // Si esta es la hora que se acaba de clicar -> Selected
+                                slot.time == timeClicked -> slot.copy(status = TimeSlotStatus.Selected)
+                                // Si esta era la hora previamente seleccionada -> Available de nuevo
+                                slot.status == TimeSlotStatus.Selected -> slot.copy(status = TimeSlotStatus.Available)
+                                // Para las demás (Available, Taken), se quedan como están
+                                else -> slot
+                            }
+                        }
+                        // 3. Actualiza el estado de la lista para que Compose redibuje
+                        initialTimeSlots.value = updatedList
+                    }
+                )
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
     }
 }
