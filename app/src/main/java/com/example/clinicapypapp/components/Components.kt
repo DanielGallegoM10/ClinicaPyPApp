@@ -88,6 +88,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.example.clinicapypapp.R
+import com.example.clinicapypapp.data.models.Seccion
 import com.example.clinicapypapp.entities.Section
 import com.example.clinicapypapp.entities.Service
 import java.sql.Date
@@ -584,18 +585,18 @@ fun SearchView(
     )
 }
 
-fun getSections(): List<Section> {
-    return listOf(
-        Section(R.drawable.medicina_estetica, "Medicina Estética", "Carmen López Martínez"),
-        Section(R.drawable.medicina_general, "Medicina General", "Carmen López Martínez"),
-        Section(R.drawable.podologia, "Podología", "Lucia García Pérez")
-    )
-}
+//fun getSections(): List<Section> {
+//    return listOf(
+//        Section(R.drawable.medicina_estetica, "Medicina Estética", "Carmen López Martínez"),
+//        Section(R.drawable.medicina_general, "Medicina General", "Carmen López Martínez"),
+//        Section(R.drawable.podologia, "Podología", "Lucia García Pérez")
+//    )
+//}
 
 @Composable
 fun SectionCard(
-    section: Section,
-    onItemSelected: (Section) -> Unit,
+    section: Seccion,
+    onItemSelected: (Seccion) -> Unit,
     cardColor: Color = Color(0xFFFCE4EC),
 ) {
     Card(
@@ -611,7 +612,7 @@ fun SectionCard(
             horizontalAlignment = Alignment.Start
         ) {
             Image(
-                painter = painterResource(id = section.image),
+                painter = painterResource(id = section.imagenSeccion),
                 contentDescription = "Section Image",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -623,7 +624,7 @@ fun SectionCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = section.sectionName,
+                text = section.nombreSeccion,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -632,19 +633,18 @@ fun SectionCard(
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = section.specialist,
+                text = section.especialista?.let { "${it.nombreEspecialista} ${it.apellidosEspecialista}" } ?: "Especialista no asignado",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black.copy(alpha = 0.7f),
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
             )
         }
     }
 }
 
 @Composable
-fun SectionList(onItemSelected: (Section) -> Unit) {
-    val sections = getSections()
+fun SectionList(sections: List<Seccion>, onItemSelected: (Seccion) -> Unit) {
     val visible = rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -652,21 +652,19 @@ fun SectionList(onItemSelected: (Section) -> Unit) {
     }
 
     LazyColumn(
+        modifier = Modifier.padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(8.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        itemsIndexed(sections) { index, section ->
+        itemsIndexed(
+            items = sections,
+            key = { _, section -> section.idSeccion ?: section.nombreSeccion }
+        ) { index, section ->
             AnimatedVisibility(
                 visible = visible.value,
-                enter = scaleIn(
-                    initialScale = 0.8f, // Escala inicial
-                    animationSpec = tween(
-                        durationMillis = 800,
-                        delayMillis = index * 100
-                    ) // Retraso para cada elemento
-                )
+                enter = scaleIn( /* ... tu animación ... */ )
             ) {
+                // Llama a SectionCard con el objeto Seccion de la API
                 SectionCard(section = section, onItemSelected = onItemSelected)
             }
         }

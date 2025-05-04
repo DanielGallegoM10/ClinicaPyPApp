@@ -1,62 +1,61 @@
 package com.example.clinicapypapp.MainScreen
 
-import android.annotation.SuppressLint
-import android.graphics.RenderEffect
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+// --- Imports Necesarios ---
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.clinicapypapp.R
-import com.example.clinicapypapp.components.CustomTitleLuxury
-import com.example.clinicapypapp.components.IconUser
-import com.example.clinicapypapp.components.SectionList
-import com.example.clinicapypapp.components.TextWithDivider
+import com.example.clinicapypapp.components.*
+import com.example.clinicapypapp.data.api.ApiService
+import com.example.clinicapypapp.data.api.KtorClient
+import com.example.clinicapypapp.data.models.Seccion // Importa el modelo de API Seccion
 
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode.Companion.Color
-import androidx.compose.ui.layout.ContentScale
-
-
-@OptIn(ExperimentalMaterial3Api::class) // Necesario para TopAppBar
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen( navigateToServices: (String) -> Unit) {
+
+    // --- Estado ---
+    var sections by remember { mutableStateOf<List<Seccion>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    // Instancia del servicio
+    val apiService = remember { ApiService(KtorClient.httpClient) }
+
+    // --- Carga de datos desde la API ---
+    LaunchedEffect(Unit) { // Se ejecuta una sola vez
+        isLoading = true
+        error = null
+        try {
+            sections = apiService.getAllSecciones() // Llama a la API
+        } catch (e: Exception) {
+            error = "Error al cargar secciones: ${e.message}"
+        } finally {
+            isLoading = false
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                },
-                actions = {
-                    IconUser()
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                )
+                title = { Text("Clínica PyP") },
+                actions = { IconUser() },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
     ) { innerPadding ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
+            // Imagen de fondo
             Image(
                 painter = painterResource(R.drawable.fondo),
                 contentDescription = null,
@@ -65,28 +64,51 @@ fun MainScreen( navigateToServices: (String) -> Unit) {
                 modifier = Modifier.fillMaxSize()
             )
 
+            // Columna principal con contenido
             Column(
-                Modifier.fillMaxSize().padding(innerPadding),
-                verticalArrangement = Arrangement.Top,
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding) // Padding de Scaffold
+                    .padding(bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
                 CustomTitleLuxury("Bienvenido a Clinica PyP")
-                Spacer(modifier = Modifier.weight(0.5f))
+                Spacer(modifier = Modifier.height(16.dp))
                 TextWithDivider("Selecciona una sección")
-                Spacer(modifier = Modifier.weight(0.5f))
-                SectionList{ navigateToServices(it.sectionName) }
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- Muestra Carga / Error / Lista ---
+                when {
+                    isLoading -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    error != null -> {
+                        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
+                            Text("Error: $error", color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                    else -> {
+                        // Lista de secciones (ocupa espacio restante y permite scroll)
+                        SectionList(
+                            sections = sections,
+                            onItemSelected = { seccionSeleccionada ->
+                                navigateToServices(seccionSeleccionada.nombreSeccion)
+                            }
+                        )
+                    }
+                }
             }
         }
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MaterialTheme { // Asegúrate de que la preview tenga un tema
+    MaterialTheme {
         MainScreen(navigateToServices = {})
     }
 }

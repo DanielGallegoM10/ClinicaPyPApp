@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.CustomBackIcon
+import com.example.clinicapypapp.components.CustomButton
 import com.example.clinicapypapp.components.CustomDescriptionTextField
 import com.example.clinicapypapp.components.CustomTitleLuxury
 import com.example.clinicapypapp.components.DatePickerField
@@ -57,6 +58,17 @@ fun CitaScreen(sectionName: String, navigateToBack: () -> Unit) {
                 TimeSlotData("12:00", TimeSlotStatus.Available),
                 TimeSlotData("12:30", TimeSlotStatus.Available),
                 TimeSlotData("13:00", TimeSlotStatus.Taken),
+                TimeSlotData("13:30", TimeSlotStatus.Available),
+                TimeSlotData("14:00", TimeSlotStatus.Available),
+                TimeSlotData("14:30", TimeSlotStatus.Taken),
+
+                TimeSlotData("16:00", TimeSlotStatus.Available),
+                TimeSlotData("16:30", TimeSlotStatus.Available),
+                TimeSlotData("17:00", TimeSlotStatus.Taken),
+                TimeSlotData("17:30", TimeSlotStatus.Available),
+                TimeSlotData("18:00", TimeSlotStatus.Available),
+                TimeSlotData("18:30", TimeSlotStatus.Taken),
+
             )
         )
     }
@@ -93,17 +105,17 @@ fun CitaScreen(sectionName: String, navigateToBack: () -> Unit) {
                 modifier = Modifier.fillMaxSize()
             )
             Column(
-                Modifier.fillMaxSize().padding(innerPadding),
+                Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CustomTitleLuxury(sectionName)
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(16.dp))
                 CustomDescriptionTextField(
                     texto = descriptionText,
                     labelName = "Cuentanos tu necesidad",
                     onValueChange = { descriptionText = it }
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 DatePickerField(
                     labelName = "Fecha de la cita",
                     selectedDateMillis = selectedDate,
@@ -111,13 +123,15 @@ fun CitaScreen(sectionName: String, navigateToBack: () -> Unit) {
                         selectedDate = millis
                     }
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 selectedDate?.let {
                     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                     Text("Fecha seleccionada: ${dateFormatter.format(Date(it))}")
                 }
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 TimeSlotGrid(
+                    modifier = Modifier
+                        .fillMaxWidth().weight(1f),
                     // Pasamos la lista actual del estado
                     timeSlots = initialTimeSlots.value,
                     onTimeSelected = { timeClicked ->
@@ -140,7 +154,9 @@ fun CitaScreen(sectionName: String, navigateToBack: () -> Unit) {
                         initialTimeSlots.value = updatedList
                     }
                 )
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(16.dp))
+                CustomButton("Coger cita") { }
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

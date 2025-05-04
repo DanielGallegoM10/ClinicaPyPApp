@@ -69,6 +69,32 @@ class ApiService(private val httpClient: HttpClient) { // Recibe el cliente Ktor
         // Si tu API devuelve un mensaje de confirmación en JSON, podrías usar .body<TuClaseDeRespuesta>() aquí.
     }
 
+    suspend fun createSeccion(seccion: Seccion): Seccion {
+        // Usa httpClient.post para hacer una petición POST
+        return httpClient.post {
+            // Define la URL del endpoint para crear secciones
+            // Asegúrate de que coincida con tu API de Spring Boot (ej: /api/secciones)
+            url {
+                appendPathSegments("api", "secciones")
+            }
+            // Indica que el cuerpo de la petición es JSON
+            contentType(ContentType.Application.Json)
+            // Pone el objeto Seccion en el cuerpo de la petición, serializado como JSON
+            // El objeto 'seccion' que recibe esta función debe tener la estructura
+            // de data/models/Seccion.kt (con imagenSeccion: Int y especialistaId: Int?)
+            setBody(seccion)
+        }.body() // Deserializa la respuesta JSON (la sección creada con ID, si la API la devuelve)
+    }
 
+    suspend fun getAllSecciones(): List<Seccion> {
+        // Usa httpClient.get para hacer una petición GET
+        return httpClient.get {
+            // Define la URL del endpoint para obtener secciones
+            url {
+                appendPathSegments("api", "secciones") // Endpoint: /api/secciones
+            }
+        }.body<List<Seccion>>() // Deserializa la respuesta JSON a una List<Seccion>
+
+    }
 
 }
