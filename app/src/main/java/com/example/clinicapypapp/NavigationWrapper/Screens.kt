@@ -9,7 +9,10 @@ object LoginDest
 object MainDest
 
 @Serializable
-data class ServicesDest(val sectionName: String)
+data class ServicesDest(
+    val idSeccion: Int,
+    val sectionName: String
+)
 
 @Serializable
 data class CitaDest(val sectionName: String)

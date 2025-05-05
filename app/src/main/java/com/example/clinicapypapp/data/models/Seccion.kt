@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Seccion(
     val idSeccion: Int? = null, // ID autogenerado
-    val imagenSeccion: Int,
+    val imagenSeccion: String,
     val nombreSeccion: String, // Basado en @Column(nullable = false)
     val especialista: Especialista? = null // ID del especialista relacionado
     // Si la API devuelve el objeto Especialista anidado, necesitarías definir una clase Especialista simplificada aquí

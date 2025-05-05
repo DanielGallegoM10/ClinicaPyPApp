@@ -12,15 +12,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.clinicapypapp.NavigationWrapper.ServicesDest
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.*
 import com.example.clinicapypapp.data.api.ApiService
 import com.example.clinicapypapp.data.api.KtorClient
 import com.example.clinicapypapp.data.models.Seccion // Importa el modelo de API Seccion
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen( navigateToServices: (String) -> Unit) {
+fun MainScreen( navigateToServices: (ServicesDest) -> Unit) {
 
     // --- Estado ---
     var sections by remember { mutableStateOf<List<Seccion>>(emptyList()) }
@@ -31,11 +33,12 @@ fun MainScreen( navigateToServices: (String) -> Unit) {
     val apiService = remember { ApiService(KtorClient.httpClient) }
 
     // --- Carga de datos desde la API ---
-    LaunchedEffect(Unit) { // Se ejecuta una sola vez
+    LaunchedEffect(Unit) {
         isLoading = true
         error = null
         try {
-            sections = apiService.getAllSecciones() // Llama a la API
+            delay(500L)
+            sections = apiService.getAllSecciones()
         } catch (e: Exception) {
             error = "Error al cargar secciones: ${e.message}"
         } finally {
@@ -46,7 +49,7 @@ fun MainScreen( navigateToServices: (String) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Clínica PyP") },
+                title = {  },
                 actions = { IconUser() },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
@@ -95,7 +98,11 @@ fun MainScreen( navigateToServices: (String) -> Unit) {
                         SectionList(
                             sections = sections,
                             onItemSelected = { seccionSeleccionada ->
-                                navigateToServices(seccionSeleccionada.nombreSeccion)
+                                val destino = ServicesDest(
+                                    idSeccion = seccionSeleccionada.idSeccion ?: -1,
+                                    sectionName = seccionSeleccionada.nombreSeccion
+                                )
+                                navigateToServices(destino)
                             }
                         )
                     }

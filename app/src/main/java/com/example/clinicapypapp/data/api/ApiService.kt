@@ -97,4 +97,16 @@ class ApiService(private val httpClient: HttpClient) { // Recibe el cliente Ktor
 
     }
 
+    // --- NUEVA FUNCIÓN: Obtener Servicios por ID de Sección ---
+    suspend fun getServiciosPorSeccion(idSeccion: Int): List<Servicio> {
+        // Usa httpClient.get para hacer una petición GET
+        return httpClient.get {
+            url {
+                // Construye la URL -> BASE_URL/api/servicios/seccion/{idSeccion}
+                appendPathSegments("api", "servicios", "seccion", idSeccion.toString())
+            }
+        }.body<List<Servicio>>()
+
+    }
+
 }

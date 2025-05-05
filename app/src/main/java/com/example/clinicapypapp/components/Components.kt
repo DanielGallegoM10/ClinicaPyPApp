@@ -89,6 +89,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.data.models.Seccion
+import com.example.clinicapypapp.data.models.Servicio
 import com.example.clinicapypapp.entities.Section
 import com.example.clinicapypapp.entities.Service
 import java.sql.Date
@@ -594,6 +595,20 @@ fun SearchView(
 //}
 
 @Composable
+fun getDrawableIdFromString(imageIdentifier: String): Int {
+
+    return when (imageIdentifier) {
+        "img_med_estetica" -> R.drawable.medicina_estetica
+        "img_med_general" -> R.drawable.medicina_general
+        "img_podología" -> R.drawable.podologia
+        // ------------------------------------------
+        else -> {
+            R.drawable.ic_launcher_background
+        }
+    }
+}
+
+@Composable
 fun SectionCard(
     section: Seccion,
     onItemSelected: (Seccion) -> Unit,
@@ -611,8 +626,11 @@ fun SectionCard(
         Column(
             horizontalAlignment = Alignment.Start
         ) {
+
+            val drawableId = getDrawableIdFromString(section.imagenSeccion)
+
             Image(
-                painter = painterResource(id = section.imagenSeccion),
+                painter = painterResource(id = drawableId),
                 contentDescription = "Section Image",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -768,8 +786,8 @@ fun LogoImage(
 
 @Composable
 fun ServiceCard(
-    service: Service,
-    onItemSelected: (Service) -> Unit,
+    service: Servicio,
+    onItemSelected: (Servicio) -> Unit,
     cardColor: Color = Color(0xFFFCE4EC),
 ) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
@@ -781,7 +799,7 @@ fun ServiceCard(
         colors = CardDefaults.cardColors(containerColor = cardColor),
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(70.dp)
             .clickable { onItemSelected(service) }
     ) {
         Column(
@@ -789,7 +807,7 @@ fun ServiceCard(
                 .padding(8.dp)
         ) {
             Text(
-                text = service.serviceName,
+                text = service.nombreServicio,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -819,7 +837,7 @@ fun ServiceCard(
 
 @Composable
 fun DialogInfoService(
-    service: Service,
+    service: Servicio,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
@@ -831,16 +849,18 @@ fun DialogInfoService(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = service.splainText,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center,
-                )
+                service.textoExplicativo?.let {
+                    Text(
+                        text = it,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center,
+                    )
+                }
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = service.time.toString() + " minutos",
+                    text = service.duracion.toString() + " minutos",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -862,8 +882,8 @@ fun DialogInfoService(
 }
 
 @Composable
-fun ServiceList(sectionName: String, onItemSelected: (Service) -> Unit) {
-    val services = getServices(sectionName)
+fun ServiceList(services: List<Servicio>, onItemSelected: (Servicio) -> Unit) {
+
     val visible = rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -892,50 +912,6 @@ fun ServiceList(sectionName: String, onItemSelected: (Service) -> Unit) {
     }
 }
 
-fun getServices(sectionName: String): List<Service> {
-    return when (sectionName) {
-        "Medicina Estética" -> listOf(
-            Service(
-                "Primera Consulta",
-                "Consulta inicial para evaluar el estado de la piel y determinar el tratamiento adecuado.",
-                60
-            ),
-            Service(
-                "Consulta Sucesiva",
-                "Consulta de seguimiento para evaluar el progreso del tratamiento.",
-                60
-            )
-        )
-
-        "Medicina General" -> listOf(
-            Service(
-                "Primera Consulta",
-                "Consulta inicial para evaluar el estado de salud y determinar el tratamiento adecuado.",
-                60
-            ),
-            Service(
-                "Consulta Sucesiva",
-                "Consulta de seguimiento para evaluar el progreso del tratamiento.",
-                60
-            )
-        )
-
-        "Podología" -> listOf(
-            Service("Quiropodía", "Tratamiento de uñas y hongos en los pies.", 60),
-            Service("Estudio Biomecánico", "Evaluación del movimiento y postura del pie.", 60),
-            Service("Pie Diabético", "Tratamiento especializado para pacientes con diabetes.", 60),
-            Service("Reconstrucción Ungueal", "Tratamiento para reconstruir uñas dañadas.", 60),
-            Service(
-                "Revisión",
-                "Consulta de seguimiento para evaluar el progreso del tratamiento.",
-                60
-            ),
-            Service("Podología Pediatrica", "Tratamiento especializado para niños.", 60)
-        )
-
-        else -> listOf()
-    }
-}
 
 @Composable
 fun ComponentsPreview() {
