@@ -22,7 +22,7 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen( navigateToServices: (ServicesDest) -> Unit) {
+fun MainScreen(idUsuario: Int, navigateToServices: (ServicesDest) -> Unit) {
 
     // --- Estado ---
     var sections by remember { mutableStateOf<List<Seccion>>(emptyList()) }
@@ -99,6 +99,7 @@ fun MainScreen( navigateToServices: (ServicesDest) -> Unit) {
                             sections = sections,
                             onItemSelected = { seccionSeleccionada ->
                                 val destino = ServicesDest(
+                                    idUsuario = idUsuario,
                                     idSeccion = seccionSeleccionada.idSeccion ?: -1,
                                     sectionName = seccionSeleccionada.nombreSeccion
                                 )
@@ -112,10 +113,10 @@ fun MainScreen( navigateToServices: (ServicesDest) -> Unit) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    MaterialTheme {
-        MainScreen(navigateToServices = {})
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun MainScreenPreview() {
+//    MaterialTheme {
+//        MainScreen(navigateToServices = {})
+//    }
+//}

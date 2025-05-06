@@ -45,7 +45,7 @@ import com.example.clinicapypapp.data.models.Servicio
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServicesScreen(sectionId: Int, sectionName: String, navigateToBack: () -> Unit, onItemSelected: (Servicio) -> Unit) {
+fun ServicesScreen(idUsuario: Int, sectionId: Int, sectionName: String, navigateToBack: () -> Unit, onItemSelected: (Servicio) -> Unit) {
 
     // --- Estado ---
     var services by rememberSaveable { mutableStateOf<List<Servicio>>(emptyList()) }

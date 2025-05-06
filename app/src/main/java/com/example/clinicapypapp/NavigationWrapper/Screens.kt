@@ -6,13 +6,21 @@ import kotlinx.serialization.Serializable
 object LoginDest
 
 @Serializable
-object MainDest
+data class MainDest(
+    val idUsuario: Int
+)
 
 @Serializable
 data class ServicesDest(
+    val idUsuario: Int,
     val idSeccion: Int,
     val sectionName: String
 )
 
 @Serializable
-data class CitaDest(val sectionName: String)
+data class UsuarioDest(
+    val idUsuario: Int
+)
+
+@Serializable
+data class CitaDest(val idUsuario: Int, val idSeccion: Int, val idServicio: Int, val sectionName: String)

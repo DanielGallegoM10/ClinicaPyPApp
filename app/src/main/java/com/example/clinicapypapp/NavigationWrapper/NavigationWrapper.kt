@@ -17,25 +17,34 @@ fun NavigationWrapper(){
 
     NavHost(navController = navController, startDestination = LoginDest){
         composable<LoginDest>{
-            LoginScreen{
-                navController.navigate(MainDest)
+            LoginScreen{ idUsuario ->
+                navController.navigate(MainDest(idUsuario))
             }
         }
 
-        composable<MainDest>{
-            MainScreen { destinoServices ->
+        composable<MainDest>{ backStackEntry ->
+            val mainDest: MainDest = backStackEntry.toRoute()
+            MainScreen (mainDest.idUsuario){ destinoServices ->
                 navController.navigate(destinoServices)
             }
         }
 
         composable<ServicesDest> { backStackEntry ->
             val section: ServicesDest = backStackEntry.toRoute()
-            ServicesScreen(section.idSeccion, section.sectionName, { navController.popBackStack() }, {navController.navigate(CitaDest(section.sectionName))})
+            ServicesScreen(section.idUsuario, section.idSeccion, section.sectionName,
+                { navController.popBackStack() },
+                { servicioSeleccionado ->
+                    val destinoCita = CitaDest(section.idUsuario, section.idSeccion, servicioSeleccionado.idServicio ?: -1, section.sectionName)
+                    navController.navigate(destinoCita)
+                })
+
         }
 
         composable<CitaDest> { backStackEntry ->
             val section: CitaDest = backStackEntry.toRoute()
-            CitaScreen(section.sectionName, { navController.popBackStack() })
+            CitaScreen(section.idUsuario, section.idSeccion, section.idServicio, section.sectionName, {
+                navController.popBackStack()
+            })
         }
 
     }

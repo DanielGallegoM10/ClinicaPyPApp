@@ -41,7 +41,7 @@ import com.example.clinicapypapp.components.LogoImage
 
 
 @Composable
-fun LoginScreen(navigateToMainScreen: () -> Unit) {
+fun LoginScreen(navigateToMainScreen: (Int) -> Unit) {
     var textoUsuario by rememberSaveable { mutableStateOf("") }
     var textoPass by rememberSaveable { mutableStateOf("") }
     var cambiaContrasena by rememberSaveable { mutableStateOf(false) }
@@ -112,7 +112,7 @@ fun LoginScreen(navigateToMainScreen: () -> Unit) {
                         // 3. Decidimos si navegar o mostrar error basándonos en el resultado de la búsqueda local
                         if (usuarioEncontrado != null) {
                             // Si encontramos un usuario, el login es "exitoso" (según esta lógica temporal)
-                            navigateToMainScreen() // <<== Llamamos a la lambda de navegación que viene del NavigationWrapper
+                            navigateToMainScreen(usuarioEncontrado.idUsuario ?: -1) // <<== Llamamos a la lambda de navegación que viene del NavigationWrapper
                         } else {
                             // Si no se encuentra, mostramos un error (actualiza el estado loginError)
                             loginError = "Usuario o contraseña incorrectos."
