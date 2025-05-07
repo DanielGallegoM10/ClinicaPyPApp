@@ -121,7 +121,7 @@ fun LoginScreen(navigateToMainScreen: (Int) -> Unit) {
                     } catch (e: Exception) {
                         // === Manejo de errores de la llamada API ===
                         // Si ocurre un error durante la llamada API (red, servidor, JSON inválido, etc.)
-                        loginError = "Error al conectar: ${e.message}" // <<== Mostramos el mensaje de error de la excepción (actualiza loginError)
+                        loginError = "Error al conectar, no se ha podido conectar con la API" // <<== Mostramos el mensaje de error de la excepción (actualiza loginError)
                         e.printStackTrace() // Imprime el stack trace en Logcat para depurar el error (Ctrl+Alt+2 en Android Studio)
                     } finally {
                         // === Bloque finally (se ejecuta siempre) ===

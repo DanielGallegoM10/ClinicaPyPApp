@@ -1,5 +1,6 @@
 package com.example.clinicapypapp.components
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -35,9 +36,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.AccountCircle
@@ -49,6 +55,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -74,6 +82,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -87,6 +96,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.data.models.Seccion
 import com.example.clinicapypapp.data.models.Servicio
@@ -97,17 +107,15 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 
-
-
 // --- Definiciones de TimeSlotStatus y TimeSlotData (como arriba) ---
 enum class TimeSlotStatus {
     Available, Taken, Selected
 }
+
 data class TimeSlotData(
     val time: String,
     val status: TimeSlotStatus
 )
-
 
 
 @Composable
@@ -128,8 +136,9 @@ fun TimeSlotGrid(
                 timeSlotData = timeSlotData,
                 onClick = {
                     if (timeSlotData.status == TimeSlotStatus.Available) {
-                    onTimeSelected(timeSlotData.time)
-                } }
+                        onTimeSelected(timeSlotData.time)
+                    }
+                }
             )
         }
     }
@@ -147,10 +156,12 @@ private fun TimeSlotItem(
             containerColor = Color.White, // Disponible: Fondo blanco
             contentColor = MaterialTheme.colorScheme.onSurface // Texto oscuro
         )
+
         TimeSlotStatus.Taken -> CardDefaults.cardColors(
             containerColor = Color.LightGray.copy(alpha = 0.6f), // Ocupada: Fondo gris claro semitransparente
             contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) // Texto grisáceo
         )
+
         TimeSlotStatus.Selected -> CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary, // Seleccionada: Fondo azul (color primario del tema)
             contentColor = MaterialTheme.colorScheme.onPrimary // Texto blanco (o el color sobre primario)
@@ -164,7 +175,10 @@ private fun TimeSlotItem(
     }
 
     val border = if (timeSlotData.status == TimeSlotStatus.Available) {
-        BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)) // Borde sutil si está disponible
+        BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+        ) // Borde sutil si está disponible
     } else {
         null
     }
@@ -298,9 +312,9 @@ fun CustomDescriptionTextField(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-        // Opcional: Puedes añadir un número máximo de líneas si quieres limitarlo
-        // maxLines = 5
-             .defaultMinSize(minHeight = 200.dp)
+            // Opcional: Puedes añadir un número máximo de líneas si quieres limitarlo
+            // maxLines = 5
+            .defaultMinSize(minHeight = 200.dp)
     )
 }
 
@@ -524,7 +538,7 @@ fun CustomDialogChangePass(
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm( nuevaContrasena ) },
+                onClick = { onConfirm(nuevaContrasena) },
                 enabled = nuevaContrasena.isNotBlank()
             ) {
                 Text("Aceptar", color = MaterialTheme.colorScheme.primary)
@@ -651,7 +665,8 @@ fun SectionCard(
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = section.especialista?.let { "${it.nombreEspecialista} ${it.apellidosEspecialista}" } ?: "Especialista no asignado",
+                text = section.especialista?.let { "${it.nombreEspecialista} ${it.apellidosEspecialista}" }
+                    ?: "Especialista no asignado",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black.copy(alpha = 0.7f),
@@ -680,7 +695,7 @@ fun SectionList(sections: List<Seccion>, onItemSelected: (Seccion) -> Unit) {
         ) { index, section ->
             AnimatedVisibility(
                 visible = visible.value,
-                enter = scaleIn( /* ... tu animación ... */ )
+                enter = scaleIn( /* ... tu animación ... */)
             ) {
                 // Llama a SectionCard con el objeto Seccion de la API
                 SectionCard(section = section, onItemSelected = onItemSelected)
@@ -691,30 +706,49 @@ fun SectionList(sections: List<Seccion>, onItemSelected: (Seccion) -> Unit) {
 
 
 @Composable
-fun IconUser(
-    modifier: Modifier = Modifier,
-    iconSize: Dp = 40.dp,
-    iconColor: Color = Color.Black,
-    borderColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
+fun IconUserMenu(
+    onNavigateToMisDatos: () -> Unit,
+    onNavigateToMisCitas: () -> Unit,
+    onNavigateToConfiguracion: () -> Unit,
+    onCerrarSesion: () -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .padding(start = 5.dp)
-            .size(iconSize + 10.dp)
-            .border(
-                width = 2.dp,
-                color = borderColor,
-                shape = CircleShape
+    var menuExpanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    Box {
+        IconButton(onClick = { menuExpanded = true }) {
+            Icon(
+                imageVector = Icons.Filled.AccountCircle,
+                contentDescription = "Menú de Usuario",
+                tint = Color.Black,
+                modifier = Modifier.size(30.dp)
             )
-            .clickable { TODO() }
-            .padding(5.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.AccountCircle,
-            contentDescription = "User Icon",
-            modifier = Modifier.size(iconSize),
-            tint = iconColor
+        }
+        UserDropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = { menuExpanded = false },
+            onMisDatosClick = {
+                Toast.makeText(context, "Mis Datos clickeado", Toast.LENGTH_SHORT).show()
+                onNavigateToMisDatos()
+                menuExpanded = false
+            },
+            onMisCitasClick = {
+                Toast.makeText(context, "Mis Citas clickeado", Toast.LENGTH_SHORT).show()
+
+//                navController.navigate(Screens.MisCitasScreen.route) // DESCOMENTA ESTO EN EL SIGUIENTE PASO
+                onNavigateToMisCitas()
+                menuExpanded = false
+            },
+            onConfiguracionClick = {
+                Toast.makeText(context, "Configuración clickeado", Toast.LENGTH_SHORT).show()
+                onNavigateToConfiguracion()
+                menuExpanded = false
+            },
+            onCerrarSesionClick = {
+                Toast.makeText(context, "Cerrar Sesión clickeado", Toast.LENGTH_SHORT).show()
+                onCerrarSesion()
+                menuExpanded = false
+            }
         )
     }
 }
@@ -803,7 +837,8 @@ fun ServiceCard(
             .clickable { onItemSelected(service) }
     ) {
         Column(
-            Modifier.fillMaxWidth()
+            Modifier
+                .fillMaxWidth()
                 .padding(8.dp)
         ) {
             Text(
@@ -831,7 +866,10 @@ fun ServiceCard(
         }
     }
     if (showDialog) {
-        DialogInfoService(service = service, onDismiss = { showDialog = false }, onConfirm = { showDialog = false })
+        DialogInfoService(
+            service = service,
+            onDismiss = { showDialog = false },
+            onConfirm = { showDialog = false })
     }
 }
 
@@ -893,7 +931,9 @@ fun ServiceList(services: List<Servicio>, onItemSelected: (Servicio) -> Unit) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        modifier = Modifier.fillMaxSize().padding(top = 8.dp, start = 8.dp, end = 8.dp, bottom = 20.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 8.dp, start = 8.dp, end = 8.dp, bottom = 20.dp)
     ) {
         itemsIndexed(services) { index, service ->
             AnimatedVisibility(
@@ -908,6 +948,51 @@ fun ServiceList(services: List<Servicio>, onItemSelected: (Servicio) -> Unit) {
             ) {
                 ServiceCard(service = service, onItemSelected = onItemSelected)
             }
+        }
+    }
+}
+
+data class DropdownOption(
+    val text: String,
+    val icon: ImageVector,
+    val onClick: () -> Unit
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    onMisDatosClick: () -> Unit,
+    onMisCitasClick: () -> Unit,
+    onConfiguracionClick: () -> Unit,
+    onCerrarSesionClick: () -> Unit,
+) {
+    val menuOptions = listOf(
+        DropdownOption("Mis Datos", Icons.Filled.AccountCircle, onMisDatosClick),
+        DropdownOption("Mis Citas", Icons.Filled.CalendarToday, onMisCitasClick),
+        DropdownOption("Configuración", Icons.Filled.Settings, onConfiguracionClick),
+        DropdownOption("Cerrar Sesión", Icons.AutoMirrored.Filled.ExitToApp, onCerrarSesionClick)
+    )
+
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest
+    ) {
+        menuOptions.forEach { option ->
+            DropdownMenuItem(
+                text = { Text(option.text) },
+                onClick = {
+                    option.onClick()
+                    onDismissRequest()
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = option.icon,
+                        contentDescription = option.text
+                    )
+                }
+            )
         }
     }
 }

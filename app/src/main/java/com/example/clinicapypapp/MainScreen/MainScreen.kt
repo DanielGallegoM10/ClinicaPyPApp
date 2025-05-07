@@ -17,22 +17,29 @@ import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.*
 import com.example.clinicapypapp.data.api.ApiService
 import com.example.clinicapypapp.data.api.KtorClient
-import com.example.clinicapypapp.data.models.Seccion // Importa el modelo de API Seccion
+import com.example.clinicapypapp.data.models.Seccion
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(idUsuario: Int, navigateToServices: (ServicesDest) -> Unit) {
+fun MainScreen(
+    idUsuario: Int,
+    navigateToServices: (ServicesDest) -> Unit,
+    navigateToMisCitas: () -> Unit,
+    navigateToMisDatos: () -> Unit,
+    navigateToConfiguracion: () -> Unit,
+    onCerrarSesion: () -> Unit
+) {
 
-    // --- Estado ---
+    //Estado
     var sections by remember { mutableStateOf<List<Seccion>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    // Instancia del servicio
+    //Instancia del servicio
     val apiService = remember { ApiService(KtorClient.httpClient) }
 
-    // --- Carga de datos desde la API ---
+    //Carga de datos desde la API
     LaunchedEffect(Unit) {
         isLoading = true
         error = null
@@ -49,8 +56,13 @@ fun MainScreen(idUsuario: Int, navigateToServices: (ServicesDest) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {  },
-                actions = { IconUser() },
+                title = { },
+                actions = { IconUserMenu(
+                    navigateToMisDatos,
+                    navigateToMisCitas,
+                    navigateToConfiguracion,
+                    onCerrarSesion
+                ) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
@@ -58,7 +70,7 @@ fun MainScreen(idUsuario: Int, navigateToServices: (ServicesDest) -> Unit) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Imagen de fondo
+            //Imagen de fondo
             Image(
                 painter = painterResource(R.drawable.fondo),
                 contentDescription = null,
@@ -67,11 +79,11 @@ fun MainScreen(idUsuario: Int, navigateToServices: (ServicesDest) -> Unit) {
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Columna principal con contenido
+            //Columna principal con contenido
             Column(
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding) // Padding de Scaffold
+                    .padding(innerPadding)
                     .padding(bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -81,20 +93,29 @@ fun MainScreen(idUsuario: Int, navigateToServices: (ServicesDest) -> Unit) {
                 TextWithDivider("Selecciona una sección")
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // --- Muestra Carga / Error / Lista ---
+                //Muestra Carga / Error / Lista
                 when {
                     isLoading -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
                             CircularProgressIndicator()
                         }
                     }
+
                     error != null -> {
-                        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Text("Error: $error", color = MaterialTheme.colorScheme.error)
                         }
                     }
+
                     else -> {
-                        // Lista de secciones (ocupa espacio restante y permite scroll)
                         SectionList(
                             sections = sections,
                             onItemSelected = { seccionSeleccionada ->

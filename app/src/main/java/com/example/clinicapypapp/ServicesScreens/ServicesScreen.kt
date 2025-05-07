@@ -36,7 +36,6 @@ import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.CustomBackIcon
 import com.example.clinicapypapp.components.CustomDescriptionTextField
 import com.example.clinicapypapp.components.CustomTitleLuxury
-import com.example.clinicapypapp.components.IconUser
 import com.example.clinicapypapp.components.ServiceList
 import com.example.clinicapypapp.components.TextWithDivider
 import com.example.clinicapypapp.data.api.ApiService

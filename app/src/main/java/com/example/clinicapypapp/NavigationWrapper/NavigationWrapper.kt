@@ -24,9 +24,19 @@ fun NavigationWrapper(){
 
         composable<MainDest>{ backStackEntry ->
             val mainDest: MainDest = backStackEntry.toRoute()
-            MainScreen (mainDest.idUsuario){ destinoServices ->
+            MainScreen (mainDest.idUsuario, { destinoServices ->
                 navController.navigate(destinoServices)
+            },{
+
+            },{
+
+            },{
+
+            },{
+
             }
+
+                )
         }
 
         composable<ServicesDest> { backStackEntry ->
