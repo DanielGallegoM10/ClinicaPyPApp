@@ -48,6 +48,8 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -55,6 +57,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -98,6 +101,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.clinicapypapp.R
+import com.example.clinicapypapp.data.models.Cita
 import com.example.clinicapypapp.data.models.Seccion
 import com.example.clinicapypapp.data.models.Servicio
 import com.example.clinicapypapp.entities.Section
@@ -993,6 +997,75 @@ fun UserDropdownMenu(
                     )
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun CitaItemView(cita: Cita) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFCE4EC)),
+        border = BorderStroke(1.5.dp, color = Color.DarkGray)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = "Sección: ${cita.seccion?.nombreSeccion}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Servicio: ${cita.servicio?.nombreServicio}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Especialista: ${cita.seccion?.especialista?.nombreEspecialista} ${cita.seccion?.especialista?.apellidosEspecialista}",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Column{
+                if (!expanded) {
+                    Icon(
+                        imageVector = Icons.Rounded.Visibility,
+                        contentDescription = "Info Icon",
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clickable {
+                                expanded = true
+                            },
+                        tint = Color.Black
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Rounded.VisibilityOff,
+                        contentDescription = "Info Icon",
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clickable {
+                                expanded = false
+                            },
+                        tint = Color.Black
+                    )
+                    Text(
+                        text = cita.texto,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Fecha: ${cita.fecha}", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "Hora: ${cita.hora}", style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }

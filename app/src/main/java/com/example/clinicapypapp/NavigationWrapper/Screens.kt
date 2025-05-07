@@ -24,3 +24,6 @@ data class UsuarioDest(
 
 @Serializable
 data class CitaDest(val idUsuario: Int, val idSeccion: Int, val idServicio: Int, val sectionName: String)
+
+@Serializable
+data class CitasUsuarioDest(val idUsuario: Int)

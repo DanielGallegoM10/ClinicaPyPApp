@@ -3,6 +3,7 @@ package com.example.clinicapypapp.data.api
 import com.example.clinicapypapp.data.models.*
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.*
 import io.ktor.http.*
 
@@ -114,6 +115,14 @@ class ApiService(private val httpClient: HttpClient) { // Recibe el cliente Ktor
             contentType(ContentType.Application.Json)
             setBody(cita)
         }.body<Cita>()
+    }
+
+    suspend fun getMisCitas(idUsuario: Int): List<Cita> {
+        return httpClient.get {
+            url {
+                appendPathSegments("api","citas", "usuario", idUsuario.toString())
+            }
+        }.body<List<Cita>>()
     }
 
 }
