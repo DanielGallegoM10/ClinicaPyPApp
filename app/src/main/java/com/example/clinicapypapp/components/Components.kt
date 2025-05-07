@@ -717,8 +717,6 @@ fun IconUserMenu(
     onCerrarSesion: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-
     Box {
         IconButton(onClick = { menuExpanded = true }) {
             Icon(
@@ -732,24 +730,18 @@ fun IconUserMenu(
             expanded = menuExpanded,
             onDismissRequest = { menuExpanded = false },
             onMisDatosClick = {
-                Toast.makeText(context, "Mis Datos clickeado", Toast.LENGTH_SHORT).show()
                 onNavigateToMisDatos()
                 menuExpanded = false
             },
             onMisCitasClick = {
-                Toast.makeText(context, "Mis Citas clickeado", Toast.LENGTH_SHORT).show()
-
-//                navController.navigate(Screens.MisCitasScreen.route) // DESCOMENTA ESTO EN EL SIGUIENTE PASO
                 onNavigateToMisCitas()
                 menuExpanded = false
             },
             onConfiguracionClick = {
-                Toast.makeText(context, "Configuración clickeado", Toast.LENGTH_SHORT).show()
                 onNavigateToConfiguracion()
                 menuExpanded = false
             },
             onCerrarSesionClick = {
-                Toast.makeText(context, "Cerrar Sesión clickeado", Toast.LENGTH_SHORT).show()
                 onCerrarSesion()
                 menuExpanded = false
             }
@@ -972,6 +964,9 @@ fun UserDropdownMenu(
     onConfiguracionClick: () -> Unit,
     onCerrarSesionClick: () -> Unit,
 ) {
+
+    val customMenuBackgroundColor = Color(0xFFFCE4EC)
+
     val menuOptions = listOf(
         DropdownOption("Mis Datos", Icons.Filled.AccountCircle, onMisDatosClick),
         DropdownOption("Mis Citas", Icons.Filled.CalendarToday, onMisCitasClick),
@@ -981,7 +976,8 @@ fun UserDropdownMenu(
 
     DropdownMenu(
         expanded = expanded,
-        onDismissRequest = onDismissRequest
+        onDismissRequest = onDismissRequest,
+        modifier = Modifier.background(customMenuBackgroundColor),
     ) {
         menuOptions.forEach { option ->
             DropdownMenuItem(
