@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -101,6 +102,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.clinicapypapp.R
+import com.example.clinicapypapp.data.api.ApiService
+import com.example.clinicapypapp.data.api.KtorClient
 import com.example.clinicapypapp.data.models.Cita
 import com.example.clinicapypapp.data.models.Seccion
 import com.example.clinicapypapp.data.models.Servicio
@@ -998,8 +1001,9 @@ fun UserDropdownMenu(
 }
 
 @Composable
-fun CitaItemView(cita: Cita) {
+fun CitaItemView(cita: Cita, onCancelClick: () -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -1026,31 +1030,53 @@ fun CitaItemView(cita: Cita) {
                 style = MaterialTheme.typography.bodyLarge
             )
             Column{
-                if (!expanded) {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ){
+
+
+                    if (!expanded) {
+                        Icon(
+                            imageVector = Icons.Rounded.Visibility,
+                            contentDescription = "Info Icon",
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable {
+                                    expanded = true
+                                },
+                            tint = Color.Black
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Rounded.VisibilityOff,
+                            contentDescription = "Info Icon",
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable {
+                                    expanded = false
+                                },
+                            tint = Color.Black
+                        )
+                        Text(
+                            text = cita.texto,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ){
                     Icon(
-                        imageVector = Icons.Rounded.Visibility,
-                        contentDescription = "Info Icon",
+                        imageVector = Icons.Rounded.Cancel,
+                        contentDescription = "Cancel Icon",
                         modifier = Modifier
                             .size(20.dp)
-                            .clickable {
-                                expanded = true
+                            .clickable{
+                                onCancelClick()
                             },
                         tint = Color.Black
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Rounded.VisibilityOff,
-                        contentDescription = "Info Icon",
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable {
-                                expanded = false
-                            },
-                        tint = Color.Black
-                    )
-                    Text(
-                        text = cita.texto,
-                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }

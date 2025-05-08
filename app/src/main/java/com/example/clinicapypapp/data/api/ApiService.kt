@@ -48,7 +48,11 @@ class ApiService(private val httpClient: HttpClient) { // Recibe el cliente Ktor
         // Usa httpClient.put para hacer una petición PUT
         return httpClient.put {
             url {
-                appendPathSegments("api", "usuarios", id.toString()) // Esto resulta en BASE_URL/api/usuarios/ID
+                appendPathSegments(
+                    "api",
+                    "usuarios",
+                    id.toString()
+                ) // Esto resulta en BASE_URL/api/usuarios/ID
             }
             // Indica que el cuerpo de la petición es JSON
             contentType(ContentType.Application.Json)
@@ -61,7 +65,11 @@ class ApiService(private val httpClient: HttpClient) { // Recibe el cliente Ktor
         // Usa httpClient.delete para hacer una petición DELETE
         httpClient.delete {
             url {
-                appendPathSegments("api", "usuarios", id.toString()) // Esto resulta en BASE_URL/api/usuarios/ID
+                appendPathSegments(
+                    "api",
+                    "usuarios",
+                    id.toString()
+                ) // Esto resulta en BASE_URL/api/usuarios/ID
             }
             // Las peticiones DELETE rara vez tienen un cuerpo de petición
         }
@@ -117,10 +125,16 @@ class ApiService(private val httpClient: HttpClient) { // Recibe el cliente Ktor
         }.body<Cita>()
     }
 
+    suspend fun deleteCita(idCita: Int) {
+        httpClient.delete {
+            url { appendPathSegments("api", "citas", idCita.toString()) }
+        }
+    }
+
     suspend fun getMisCitas(idUsuario: Int): List<Cita> {
         return httpClient.get {
             url {
-                appendPathSegments("api","citas", "usuario", idUsuario.toString())
+                appendPathSegments("api", "citas", "usuario", idUsuario.toString())
             }
         }.body<List<Cita>>()
     }
