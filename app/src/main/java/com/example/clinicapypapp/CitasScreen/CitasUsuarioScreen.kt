@@ -103,7 +103,6 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            // Imagen de fondo
             Image(
                 painter = painterResource(R.drawable.fondo),
                 contentDescription = null,

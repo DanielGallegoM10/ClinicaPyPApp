@@ -92,44 +92,30 @@ fun LoginScreen(navigateToMainScreen: (Int) -> Unit) {
                     cambiaContrasena = true }}, color = Color.Blue)
             Spacer(modifier = Modifier.weight(1f))
 
-            CustomButton("Iniciar sesión", enabled = !isLoading) { // <<== Modifica el bloque onClick
-                // === Lógica de llamada a la API dentro de una Coroutine ===
-                // Lanzar una coroutine cuando se presiona el botón
-                scope.launch { // <<== Lanza una coroutine
-                    isLoading = true // <<== Empezamos a cargar (actualiza el estado isLoading)
-                    loginError = null // <<== Limpiamos errores anteriores (actualiza el estado loginError)
+            CustomButton("Iniciar sesión", enabled = !isLoading) {
+                scope.launch {
+                    isLoading = true
+                    loginError = null
 
                     try {
-                        // 1. Obtenemos TODOS los usuarios de la API usando la instancia de apiService del Paso 12a
-                        val todosUsuarios = apiService.getAllUsuarios() // <<== Hacemos la llamada API (es suspendida)
-
-                        // 2. Buscamos localmente si existe un usuario con el nombre y contraseña ingresados
-                        // Usamos textoUsuario y textoPass que son los estados de los TextFields
+                        val todosUsuarios = apiService.getAllUsuarios()
                         val usuarioEncontrado = todosUsuarios.find {
                             it.nombreUsuario == textoUsuario && it.contrasenia == textoPass
                         }
 
-                        // 3. Decidimos si navegar o mostrar error basándonos en el resultado de la búsqueda local
                         if (usuarioEncontrado != null) {
-                            // Si encontramos un usuario, el login es "exitoso" (según esta lógica temporal)
-                            navigateToMainScreen(usuarioEncontrado.idUsuario ?: -1) // <<== Llamamos a la lambda de navegación que viene del NavigationWrapper
+                            navigateToMainScreen(usuarioEncontrado.idUsuario ?: -1)
                         } else {
-                            // Si no se encuentra, mostramos un error (actualiza el estado loginError)
                             loginError = "Usuario o contraseña incorrectos."
                         }
 
                     } catch (e: Exception) {
-                        // === Manejo de errores de la llamada API ===
-                        // Si ocurre un error durante la llamada API (red, servidor, JSON inválido, etc.)
-                        loginError = "Error al conectar, no se ha podido conectar con la API" // <<== Mostramos el mensaje de error de la excepción (actualiza loginError)
-                        e.printStackTrace() // Imprime el stack trace en Logcat para depurar el error (Ctrl+Alt+2 en Android Studio)
+                         loginError = "Error al conectar, no se ha podido conectar con la API"
+                        e.printStackTrace()
                     } finally {
-                        // === Bloque finally (se ejecuta siempre) ===
-                        // Esto se ejecuta al finalizar la coroutine, tanto si hubo éxito como si hubo error.
-                        isLoading = false // <<== Ocultamos el indicador de carga (actualiza isLoading)
+                        isLoading = false
                     }
-                    // === Fin Lógica de llamada a la API ===
-                } // <<== Cierre de scope.launch
+                }
             }
 
             if (isLoading) {

@@ -114,7 +114,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 
-// --- Definiciones de TimeSlotStatus y TimeSlotData (como arriba) ---
 enum class TimeSlotStatus {
     Available, Taken, Selected
 }
@@ -128,15 +127,15 @@ data class TimeSlotData(
 @Composable
 fun TimeSlotGrid(
     timeSlots: List<TimeSlotData>,
-    columns: Int = 3, // Número de columnas en la cuadrícula
-    onTimeSelected: (String) -> Unit, // Dejamos la lambda aunque no la usemos aún
+    columns: Int = 3,
+    onTimeSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp), // Espacio vertical entre filas
-        horizontalArrangement = Arrangement.spacedBy(10.dp) // Espacio horizontal entre columnas
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(timeSlots) { timeSlotData ->
             TimeSlotItem(
@@ -151,7 +150,7 @@ fun TimeSlotGrid(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // Necesario para el onClick de Card
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TimeSlotItem(
     timeSlotData: TimeSlotData,
@@ -160,23 +159,23 @@ private fun TimeSlotItem(
 ) {
     val cardColors = when (timeSlotData.status) {
         TimeSlotStatus.Available -> CardDefaults.cardColors(
-            containerColor = Color.White, // Disponible: Fondo blanco
-            contentColor = MaterialTheme.colorScheme.onSurface // Texto oscuro
+            containerColor = Color.White,
+            contentColor = MaterialTheme.colorScheme.onSurface
         )
 
         TimeSlotStatus.Taken -> CardDefaults.cardColors(
-            containerColor = Color.LightGray.copy(alpha = 0.6f), // Ocupada: Fondo gris claro semitransparente
-            contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) // Texto grisáceo
+            containerColor = Color.LightGray.copy(alpha = 0.6f),
+            contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
 
         TimeSlotStatus.Selected -> CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary, // Seleccionada: Fondo azul (color primario del tema)
-            contentColor = MaterialTheme.colorScheme.onPrimary // Texto blanco (o el color sobre primario)
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         )
     }
 
     val cardElevation = if (timeSlotData.status == TimeSlotStatus.Taken) {
-        CardDefaults.cardElevation(defaultElevation = 1.dp) // Menos elevación si está ocupada
+        CardDefaults.cardElevation(defaultElevation = 1.dp)
     } else {
         CardDefaults.cardElevation(defaultElevation = 4.dp)
     }
@@ -185,7 +184,7 @@ private fun TimeSlotItem(
         BorderStroke(
             1.dp,
             MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-        ) // Borde sutil si está disponible
+        )
     } else {
         null
     }
@@ -193,14 +192,14 @@ private fun TimeSlotItem(
 
     Card(
         modifier = modifier
-            .aspectRatio(1.8f) // Proporción para que sea más ancho que alto
-            .height(IntrinsicSize.Min), // Ajusta la altura al contenido (puede necesitar ajustes)
+            .aspectRatio(1.8f)
+            .height(IntrinsicSize.Min),
         shape = RoundedCornerShape(8.dp),
         colors = cardColors,
         elevation = cardElevation,
         border = border,
-        onClick = onClick, // Asociamos el click (aunque la lambda esté vacía ahora)
-        enabled = timeSlotData.status != TimeSlotStatus.Taken // La tarjeta no es interactiva si está ocupada
+        onClick = onClick,
+        enabled = timeSlotData.status != TimeSlotStatus.Taken
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -209,7 +208,7 @@ private fun TimeSlotItem(
             Text(
                 text = timeSlotData.time,
                 fontWeight = FontWeight.Medium,
-                fontSize = 14.sp, // Tamaño de fuente ajustado
+                fontSize = 14.sp,
                 textAlign = TextAlign.Center
             )
         }
@@ -230,20 +229,18 @@ fun DatePickerField(
     val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
     val displayText = selectedDateMillis?.let { dateFormatter.format(Date(it)) } ?: ""
 
-    // ---- Contenedor Box que captura el clic ----
     Box(
         modifier = modifier
             .fillMaxWidth()
             // Aplicamos el clickable al Box
             .clickable { showDialog = true }
     ) {
-        // ---- TextField (ahora deshabilitado para interacción directa) ----
         OutlinedTextField(
             value = displayText,
             onValueChange = { },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp), // Padding aplicado aquí
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             label = { Text(text = labelName) },
             placeholder = { Text("Selecciona una fecha") },
             leadingIcon = {
@@ -252,28 +249,24 @@ fun DatePickerField(
                     contentDescription = "Seleccionar fecha"
                 )
             },
-            enabled = false, // <--- Deshabilitamos el TextField
+            enabled = false,
             colors = TextFieldDefaults.colors(
-                // --- Colores para cuando está DESHABILITADO ---
-                // Queremos que parezca habilitado visualmente
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                 disabledContainerColor = Color.Transparent,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledIndicatorColor = MaterialTheme.colorScheme.outline, // Borde gris normal
-                // --- Colores 'focused' y 'unfocused' que ya no se usarán pero los dejamos ---
+                disabledIndicatorColor = MaterialTheme.colorScheme.outline,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                 unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
-                cursorColor = Color.Transparent // No debería aparecer cursor
+                cursorColor = Color.Transparent
             )
         )
-    } // Fin del Box
+    }
 
-    // ---- El DatePickerDialog (sin cambios) ----
     if (showDialog) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = selectedDateMillis ?: System.currentTimeMillis()
@@ -319,8 +312,6 @@ fun CustomDescriptionTextField(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            // Opcional: Puedes añadir un número máximo de líneas si quieres limitarlo
-            // maxLines = 5
             .defaultMinSize(minHeight = 200.dp)
     )
 }
@@ -607,14 +598,6 @@ fun SearchView(
     )
 }
 
-//fun getSections(): List<Section> {
-//    return listOf(
-//        Section(R.drawable.medicina_estetica, "Medicina Estética", "Carmen López Martínez"),
-//        Section(R.drawable.medicina_general, "Medicina General", "Carmen López Martínez"),
-//        Section(R.drawable.podologia, "Podología", "Lucia García Pérez")
-//    )
-//}
-
 @Composable
 fun getDrawableIdFromString(imageIdentifier: String): Int {
 
@@ -622,7 +605,6 @@ fun getDrawableIdFromString(imageIdentifier: String): Int {
         "img_med_estetica" -> R.drawable.medicina_estetica
         "img_med_general" -> R.drawable.medicina_general
         "img_podología" -> R.drawable.podologia
-        // ------------------------------------------
         else -> {
             R.drawable.ic_launcher_background
         }
@@ -702,9 +684,8 @@ fun SectionList(sections: List<Seccion>, onItemSelected: (Seccion) -> Unit) {
         ) { index, section ->
             AnimatedVisibility(
                 visible = visible.value,
-                enter = scaleIn( /* ... tu animación ... */)
+                enter = scaleIn()
             ) {
-                // Llama a SectionCard con el objeto Seccion de la API
                 SectionCard(section = section, onItemSelected = onItemSelected)
             }
         }
@@ -767,7 +748,6 @@ fun TextWithDivider(
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Animación de entrada para el divisor
         val animatedProgress by rememberInfiniteTransition().animateFloat(
             initialValue = 0f,
             targetValue = 1f,
@@ -811,8 +791,6 @@ fun LogoImage(
         contentDescription = "Logo Image",
         modifier = Modifier
             .size(width, height),
-//            .clip(RoundedCornerShape(cornerRadius)),
-//            .border(borderWidth, borderColor, RoundedCornerShape(cornerRadius)),
         contentScale = ContentScale.Crop
     )
 }
@@ -1034,8 +1012,6 @@ fun CitaItemView(cita: Cita, onCancelClick: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ){
-
-
                     if (!expanded) {
                         Icon(
                             imageVector = Icons.Rounded.Visibility,

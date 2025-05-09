@@ -8,23 +8,17 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
-object KtorClient { // Usamos un objeto singleton para tener una sola instancia
+object KtorClient {
 
-    private const val BASE_URL = "http://212.227.145.78:8080/" // ¡TU IP REAL Y PUERTO!
+    private const val BASE_URL = "http://212.227.145.78:8080/" //Aqui pongo IP y puerto, se construye la url base
 
     val httpClient = HttpClient(Android) {
-        // Configura el motor para Android
         engine {
-            // ...
         }
 
-        // === AÑADIDO: Plugin para configurar peticiones por defecto, incluyendo la URL base ===
         install(DefaultRequest) {
-            url(BASE_URL) // <<== Configura el cliente para usar esta URL como base
-            // Si necesitas añadir headers por defecto (ej. para autenticación), también irían aquí
-            // header(HttpHeaders.Authorization, "Bearer your_token")
+            url(BASE_URL) //Configura el cliente para usar esta URL como base
         }
-        // =====================================================================================
 
         // Instala el plugin de Negociación de Contenido para JSON
         install(ContentNegotiation) {
@@ -33,13 +27,5 @@ object KtorClient { // Usamos un objeto singleton para tener una sola instancia
                 isLenient = true
             })
         }
-
-        // Opcional: Instala el plugin de Logging (muy útil para debug)
-//        install(Logging) { // <<== Si lo tenías comentado, descoméntalo temporalmente para ver los logs de red
-//            logger = Logger.DEFAULT
-//            level = LogLevel.ALL // Ponlo en ALL para ver qué URL está intentando conectar
-//        }
-
-        // Puedes añadir otros plugins aquí
     }
 }

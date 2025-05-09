@@ -62,7 +62,7 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, sectionName: Str
     var selectedTimeSlot by rememberSaveable { mutableStateOf<String?>(null) }
     val initialTimeSlots = rememberSaveable {
         mutableStateOf(
-            listOf(
+            listOf( //De momento son horas de prueba
                 TimeSlotData("09:00", TimeSlotStatus.Available),
                 TimeSlotData("09:30", TimeSlotStatus.Available),
                 TimeSlotData("10:00", TimeSlotStatus.Taken),
@@ -94,10 +94,8 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, sectionName: Str
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    // Formateador para la fecha (YYYY-MM-DD)
     val dateFormatter = remember {
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
-            // Usar UTC para formatear evita problemas de zona horaria al enviar solo la fecha
             timeZone = TimeZone.getTimeZone("UTC")
         }
     }
@@ -162,25 +160,17 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, sectionName: Str
                 TimeSlotGrid(
                     modifier = Modifier
                         .fillMaxWidth().weight(1f),
-                    // Pasamos la lista actual del estado
                     timeSlots = initialTimeSlots.value,
                     onTimeSelected = { timeClicked ->
-                        // --- Lógica de selección ---
-                        // 1. Actualiza la hora seleccionada
                         selectedTimeSlot = timeClicked
 
-                        // 2. Crea una NUEVA lista basada en la selección
                         val updatedList = initialTimeSlots.value.map { slot ->
                             when {
-                                // Si esta es la hora que se acaba de clicar -> Selected
                                 slot.time == timeClicked -> slot.copy(status = TimeSlotStatus.Selected)
-                                // Si esta era la hora previamente seleccionada -> Available de nuevo
                                 slot.status == TimeSlotStatus.Selected -> slot.copy(status = TimeSlotStatus.Available)
-                                // Para las demás (Available, Taken), se quedan como están
                                 else -> slot
                             }
                         }
-                        // 3. Actualiza el estado de la lista para que Compose redibuje
                         initialTimeSlots.value = updatedList
                     }
                 )
@@ -232,7 +222,7 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, sectionName: Str
         AlertDialog(
             onDismissRequest = {
                 showSuccessDialog = false
-                navigateToBack() // Vuelve atrás
+                navigateToBack()
             },
             title = { Text("¡Cita Registrada!") },
             text = { Text("Tu cita ha sido registrada correctamente.") },

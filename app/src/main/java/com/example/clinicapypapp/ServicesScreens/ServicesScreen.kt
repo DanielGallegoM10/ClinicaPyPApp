@@ -46,20 +46,16 @@ import com.example.clinicapypapp.data.models.Servicio
 @Composable
 fun ServicesScreen(idUsuario: Int, sectionId: Int, sectionName: String, navigateToBack: () -> Unit, onItemSelected: (Servicio) -> Unit) {
 
-    // --- Estado ---
     var services by rememberSaveable { mutableStateOf<List<Servicio>>(emptyList()) }
     var isLoading by rememberSaveable { mutableStateOf(true) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
 
-    // Instancia del servicio
     val apiService = remember { ApiService(KtorClient.httpClient) }
 
-    // --- Carga de datos desde la API ---
     LaunchedEffect(key1 = sectionId) {
         isLoading = true
         error = null
         try {
-            // Llama a la API para obtener los servicios de esta sección
             services = apiService.getServiciosPorSeccion(sectionId)
         } catch (e: Exception) {
             error = "Error al cargar servicios: ${e.message}"
@@ -85,7 +81,6 @@ fun ServicesScreen(idUsuario: Int, sectionId: Int, sectionName: String, navigate
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Imagen de fondo
             Image(
                 painter = painterResource(R.drawable.fondo),
                 contentDescription = null,
@@ -97,7 +92,7 @@ fun ServicesScreen(idUsuario: Int, sectionId: Int, sectionName: String, navigate
             Column(
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding) // Aplica padding de Scaffold
+                    .padding(innerPadding)
                     .padding(bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -125,7 +120,6 @@ fun ServicesScreen(idUsuario: Int, sectionId: Int, sectionName: String, navigate
                         }
                     }
                     services.isEmpty() -> {
-                        // Mensaje si no hay servicios para esta sección
                         Box(
                             modifier = Modifier.fillMaxSize().padding(16.dp),
                             contentAlignment = Alignment.Center

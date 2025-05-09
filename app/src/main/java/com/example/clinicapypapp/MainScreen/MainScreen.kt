@@ -1,6 +1,5 @@
 package com.example.clinicapypapp.MainScreen
 
-// --- Imports Necesarios ---
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -31,20 +30,17 @@ fun MainScreen(
     onCerrarSesion: () -> Unit
 ) {
 
-    //Estado
     var sections by remember { mutableStateOf<List<Seccion>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    //Instancia del servicio
     val apiService = remember { ApiService(KtorClient.httpClient) }
 
-    //Carga de datos desde la API
     LaunchedEffect(Unit) {
         isLoading = true
         error = null
         try {
-            delay(500L)
+            delay(500L) //le pongo un delay para que se vea el circulo de carga, sino no se aprecia porque carga rápido
             sections = apiService.getAllSecciones()
         } catch (e: Exception) {
             error = "Error al cargar secciones: ${e.message}"
@@ -70,7 +66,6 @@ fun MainScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            //Imagen de fondo
             Image(
                 painter = painterResource(R.drawable.fondo),
                 contentDescription = null,
@@ -78,8 +73,6 @@ fun MainScreen(
                 alpha = 0.4f,
                 modifier = Modifier.fillMaxSize()
             )
-
-            //Columna principal con contenido
             Column(
                 Modifier
                     .fillMaxSize()
@@ -93,7 +86,6 @@ fun MainScreen(
                 TextWithDivider("Selecciona una sección")
                 Spacer(modifier = Modifier.height(16.dp))
 
-                //Muestra Carga / Error / Lista
                 when {
                     isLoading -> {
                         Box(
