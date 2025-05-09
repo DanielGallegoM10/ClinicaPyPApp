@@ -1007,49 +1007,52 @@ fun CitaItemView(cita: Cita, onCancelClick: () -> Unit) {
                 text = "Especialista: ${cita.seccion?.especialista?.nombreEspecialista} ${cita.seccion?.especialista?.apellidosEspecialista}",
                 style = MaterialTheme.typography.bodyLarge
             )
-            Column{
-                Row (
+            Row {
+                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
-                ){
-                    if (!expanded) {
-                        Icon(
-                            imageVector = Icons.Rounded.Visibility,
-                            contentDescription = "Info Icon",
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable {
-                                    expanded = true
-                                },
-                            tint = Color.Black
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Rounded.VisibilityOff,
-                            contentDescription = "Info Icon",
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable {
-                                    expanded = false
-                                },
-                            tint = Color.Black
-                        )
-                        Text(
-                            text = cita.texto,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
+                ) {
+                    Column {
+                        if (!expanded) {
+                            Icon(
+                                imageVector = Icons.Rounded.Visibility,
+                                contentDescription = "Info Icon",
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable {
+                                        expanded = true
+                                    },
+                                tint = Color.Black
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Rounded.VisibilityOff,
+                                contentDescription = "Info Icon",
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable {
+                                        expanded = false
+                                    },
+                                tint = Color.Black
+                            )
+                            Text(
+                                text = cita.texto,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
                     }
                 }
-                Row (
+                Row(
+                    Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ){
+                    horizontalArrangement = Arrangement.End
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.Cancel,
                         contentDescription = "Cancel Icon",
                         modifier = Modifier
                             .size(20.dp)
-                            .clickable{
+                            .clickable {
                                 onCancelClick()
                             },
                         tint = Color.Black
