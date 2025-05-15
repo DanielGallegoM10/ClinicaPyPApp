@@ -62,16 +62,16 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mis Citas", color = Color.White) },
+                title = { Text("Mis Citas", color = Color.Black) },
                 navigationIcon = {
                     IconButton(onClick = navigateToBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = Color.Black)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    titleContentColor = Color.Black,
+                    navigationIconContentColor = Color.Black
                 )
             )
         },

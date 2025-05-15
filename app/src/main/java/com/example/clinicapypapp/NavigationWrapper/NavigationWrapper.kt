@@ -49,6 +49,7 @@ fun NavigationWrapper() {
                         section.idUsuario,
                         section.idSeccion,
                         servicioSeleccionado.idServicio ?: -1,
+                        section.idEspecialista,
                         section.sectionName
                     )
                     navController.navigate(destinoCita)
@@ -62,6 +63,7 @@ fun NavigationWrapper() {
                 section.idUsuario,
                 section.idSeccion,
                 section.idServicio,
+                section.idEspecialista,
                 section.sectionName,
                 {
                     navController.popBackStack()

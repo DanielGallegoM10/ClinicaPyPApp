@@ -114,6 +114,8 @@ fun MainScreen(
                                 val destino = ServicesDest(
                                     idUsuario = idUsuario,
                                     idSeccion = seccionSeleccionada.idSeccion ?: -1,
+                                    idEspecialista = seccionSeleccionada.especialista?.idEspecialista
+                                        ?: -1,
                                     sectionName = seccionSeleccionada.nombreSeccion
                                 )
                                 navigateToServices(destino)
