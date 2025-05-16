@@ -112,4 +112,11 @@ class ApiService(private val httpClient: HttpClient) {
         }.body<List<Cita>>()
     }
 
+    suspend fun getCitasbyEspecialistaAndFecha(idEspecialista: Int, fecha: String): List<String> {
+        return httpClient.get{
+            url {
+                appendPathSegments("api", "citas", "ocupadas", "especialista", idEspecialista.toString(), "fecha", fecha.toString())
+            }
+        }.body<List<String>>()
+    }
 }

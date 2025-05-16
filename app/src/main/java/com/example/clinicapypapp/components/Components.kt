@@ -1,6 +1,8 @@
 package com.example.clinicapypapp.components
 
-import android.widget.Toast
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -32,7 +35,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -41,12 +43,10 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Visibility
@@ -58,7 +58,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -100,22 +99,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavController
 import com.example.clinicapypapp.R
-import com.example.clinicapypapp.data.api.ApiService
-import com.example.clinicapypapp.data.api.KtorClient
 import com.example.clinicapypapp.data.models.Cita
 import com.example.clinicapypapp.data.models.Seccion
 import com.example.clinicapypapp.data.models.Servicio
-import com.example.clinicapypapp.entities.Section
-import com.example.clinicapypapp.entities.Service
 import java.sql.Date
 import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
 enum class TimeSlotStatus {
-    Available, Taken, Selected
+    Available, Booked, Selected
 }
 
 data class TimeSlotData(
@@ -123,29 +119,111 @@ data class TimeSlotData(
     val status: TimeSlotStatus
 )
 
+sealed interface BookedSlotsResult {
+    object Idle : BookedSlotsResult
+    object Loading : BookedSlotsResult
+    data class Success(val bookedSlots: List<String>) : BookedSlotsResult
+    data class Error(val message: String) : BookedSlotsResult
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun generateBaseTimeSlots(
+    startTime: String,
+    endTime: String,
+    intervalMinutes: Long,
+    initialStatus: TimeSlotStatus = TimeSlotStatus.Available
+): List<TimeSlotData> {
+    val slots = mutableListOf<TimeSlotData>()
+    try {
+        var currentTime = LocalTime.parse(startTime)
+        val lastTime = LocalTime.parse(endTime)
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+
+        while (currentTime.isBefore(lastTime)) {
+            slots.add(TimeSlotData(time = currentTime.format(formatter), status = initialStatus))
+            currentTime = currentTime.plusMinutes(intervalMinutes)
+        }
+    } catch (e: Exception) {
+        Log.e("generateBaseTimeSlots", "Error generating time slots: ${e.message}")
+    }
+    return slots
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Long): List<String> {
+    val slots = mutableListOf<String>()
+    try {
+        var currentTime = LocalTime.parse(startTime)
+        val lastTime = LocalTime.parse(endTime)
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+        while (currentTime.isBefore(lastTime)) {
+            slots.add(currentTime.format(formatter))
+            currentTime = currentTime.plusMinutes(intervalMinutes)
+        }
+    } catch (e: Exception) {
+        Log.e("generateTimeSlots", "Error generating time slots: ${e.message}")
+    }
+    return slots
+}
 
 @Composable
 fun TimeSlotGrid(
-    timeSlots: List<TimeSlotData>,
-    columns: Int = 3,
-    onTimeSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier, // Permite pasar modificadores desde fuera
+    timeSlots: List<TimeSlotData>, // La lista de slots con su estado actual
+    onTimeSelected: (String) -> Unit // Lambda que se llama cuando se pulsa una hora disponible
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        columns = GridCells.Adaptive(minSize = 85.dp), // Ajusta el tamaño mínimo de cada celda
+        modifier = modifier, // Aplica el modificador pasado (ej: .weight(1f))
+        contentPadding = PaddingValues(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp), // Espacio horizontal entre celdas
+        verticalArrangement = Arrangement.spacedBy(8.dp)     // Espacio vertical entre celdas
     ) {
-        items(timeSlots) { timeSlotData ->
-            TimeSlotItem(
-                timeSlotData = timeSlotData,
+        items(timeSlots, key = { it.time }) { slotData -> // Usar 'time' como key para optimizar recomposiciones
+
+            // Determinar si el botón debe estar habilitado
+            val isEnabled = slotData.status != TimeSlotStatus.Booked
+
+            // Determinar los colores según el estado
+            val containerColor = when (slotData.status) {
+                TimeSlotStatus.Available -> MaterialTheme.colorScheme.surfaceVariant // Color para disponible
+                TimeSlotStatus.Booked -> Color.Gray          // Color para ocupado
+                TimeSlotStatus.Selected -> MaterialTheme.colorScheme.primary   // Color para seleccionado
+            }
+            val contentColor = when (slotData.status) {
+                TimeSlotStatus.Available -> MaterialTheme.colorScheme.onSurfaceVariant
+                TimeSlotStatus.Booked -> Color.Gray
+                TimeSlotStatus.Selected -> MaterialTheme.colorScheme.onPrimary
+            }
+            // Colores específicos cuando está deshabilitado (ocupado)
+            val disabledContainerColor =Color.Gray
+            val disabledContentColor = Color.Black
+
+            Button(
                 onClick = {
-                    if (timeSlotData.status == TimeSlotStatus.Available) {
-                        onTimeSelected(timeSlotData.time)
+                    // Solo llama a onTimeSelected si NO está ocupado
+                    if (isEnabled) {
+                        onTimeSelected(slotData.time)
                     }
-                }
-            )
+                    // Si está ocupado, el click no hace nada porque enabled=false
+                },
+                enabled = isEnabled, // Deshabilitado si está 'Booked'
+                shape = MaterialTheme.shapes.medium, // O la forma que prefieras
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = containerColor,
+                    contentColor = contentColor,
+                    disabledContainerColor = disabledContainerColor,
+                    disabledContentColor = disabledContentColor
+                ),
+                modifier = Modifier
+                    .height(45.dp) // Altura fija para los botones
+                    .fillMaxWidth() // Ocupar el ancho de la celda de la grid
+            ) {
+                Text(
+                    text = slotData.time,
+                    style = MaterialTheme.typography.bodyMedium // O el estilo que prefieras
+                )
+            }
         }
     }
 }
@@ -163,7 +241,7 @@ private fun TimeSlotItem(
             contentColor = MaterialTheme.colorScheme.onSurface
         )
 
-        TimeSlotStatus.Taken -> CardDefaults.cardColors(
+        TimeSlotStatus.Booked -> CardDefaults.cardColors(
             containerColor = Color.LightGray.copy(alpha = 0.6f),
             contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
@@ -174,7 +252,7 @@ private fun TimeSlotItem(
         )
     }
 
-    val cardElevation = if (timeSlotData.status == TimeSlotStatus.Taken) {
+    val cardElevation = if (timeSlotData.status == TimeSlotStatus.Booked) {
         CardDefaults.cardElevation(defaultElevation = 1.dp)
     } else {
         CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -199,7 +277,7 @@ private fun TimeSlotItem(
         elevation = cardElevation,
         border = border,
         onClick = onClick,
-        enabled = timeSlotData.status != TimeSlotStatus.Taken
+        enabled = timeSlotData.status != TimeSlotStatus.Booked
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
