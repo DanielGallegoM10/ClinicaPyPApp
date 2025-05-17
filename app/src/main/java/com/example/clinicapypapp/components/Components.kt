@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
@@ -775,7 +776,7 @@ fun SectionList(sections: List<Seccion>, onItemSelected: (Seccion) -> Unit) {
 fun IconUserMenu(
     onNavigateToMisDatos: () -> Unit,
     onNavigateToMisCitas: () -> Unit,
-    onNavigateToConfiguracion: () -> Unit,
+    onNavigateToQuienSomos: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -799,8 +800,8 @@ fun IconUserMenu(
                 onNavigateToMisCitas()
                 menuExpanded = false
             },
-            onConfiguracionClick = {
-                onNavigateToConfiguracion()
+            onQuienSomosClick = {
+                onNavigateToQuienSomos()
                 menuExpanded = false
             },
             onCerrarSesionClick = {
@@ -1020,7 +1021,7 @@ fun UserDropdownMenu(
     onDismissRequest: () -> Unit,
     onMisDatosClick: () -> Unit,
     onMisCitasClick: () -> Unit,
-    onConfiguracionClick: () -> Unit,
+    onQuienSomosClick: () -> Unit,
     onCerrarSesionClick: () -> Unit,
 ) {
 
@@ -1029,7 +1030,7 @@ fun UserDropdownMenu(
     val menuOptions = listOf(
         DropdownOption("Mis Datos", Icons.Filled.AccountCircle, onMisDatosClick),
         DropdownOption("Mis Citas", Icons.Filled.CalendarToday, onMisCitasClick),
-        DropdownOption("Configuración", Icons.Filled.Settings, onConfiguracionClick),
+        DropdownOption("¿Quien Somos?", Icons.Filled.QuestionMark, onQuienSomosClick),
         DropdownOption("Cerrar Sesión", Icons.AutoMirrored.Filled.ExitToApp, onCerrarSesionClick)
     )
 
@@ -1147,6 +1148,64 @@ fun CitaItemView(cita: Cita, onCancelClick: () -> Unit) {
             }
         }
     }
+}
+
+@Composable
+fun CardQuienSomos(
+    nombre: String,
+    especialidad: String,
+    descripcion: String,
+    imagen: Int
+){
+    Card(
+        border = BorderStroke(1.5.dp, color = Color.DarkGray),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFCE4EC)),
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Column(
+
+        ) {
+            Image(
+                painter = painterResource(id = imagen),
+                contentDescription = "Imagen de perfil",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = nombre,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = especialidad,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black.copy(alpha = 0.7f),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = descripcion,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black.copy(alpha = 0.7f),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+            )
+        }
+    }
+
 }
 
 

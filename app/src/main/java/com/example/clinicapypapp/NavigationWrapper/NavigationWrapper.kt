@@ -1,5 +1,7 @@
 package com.example.clinicapypapp.NavigationWrapper
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,9 +11,11 @@ import com.example.clinicapypapp.CitasScreen.CitaScreen
 import com.example.clinicapypapp.CitasScreen.CitasUsuarioScreen
 import com.example.clinicapypapp.LoginScreen.LoginScreen
 import com.example.clinicapypapp.MainScreen.MainScreen
+import com.example.clinicapypapp.QuienSomosScreen.QuienSomosScreen
 import com.example.clinicapypapp.ServicesScreens.ServicesScreen
 import com.example.clinicapypapp.entities.Section
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationWrapper() {
     val navController = rememberNavController()
@@ -32,9 +36,9 @@ fun NavigationWrapper() {
             }, {
 
             }, {
-
+                navController.navigate(QuienSomosDest)
             }, {
-
+                navController.navigate(LoginDest)
             }
 
             )
@@ -64,10 +68,10 @@ fun NavigationWrapper() {
                 section.idSeccion,
                 section.idServicio,
                 section.idEspecialista,
-                section.sectionName,
-                {
-                    navController.popBackStack()
-                })
+                section.sectionName
+            ) {
+                navController.popBackStack()
+            }
         }
 
         composable<CitasUsuarioDest> { backStackEntry ->
@@ -78,6 +82,12 @@ fun NavigationWrapper() {
 
 
             })
+        }
+
+        composable<QuienSomosDest> {
+            QuienSomosScreen {
+                navController.popBackStack()
+            }
         }
     }
 }
