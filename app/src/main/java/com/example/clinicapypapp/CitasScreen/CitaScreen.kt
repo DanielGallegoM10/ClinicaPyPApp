@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +35,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -85,7 +88,7 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
 
 
     LaunchedEffect(key1 = selectedDate, key2 = idEspecialista) {
-        if (selectedDate != null && idEspecialista != null) {
+        if (selectedDate != null) {
             val fechaApiString = try {
                 apiDateFormatter.format(java.util.Date(selectedDate!!))
             } catch (e: Exception) {
@@ -104,7 +107,7 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                     bookedSlotsState = BookedSlotsResult.Success(horasOcupadasList)
 
                     val horasOcupadasSet = horasOcupadasList.toSet()
-                    val baseSlots = generateBaseTimeSlots("09:00", "18:00", 30)
+                    val baseSlots = generateBaseTimeSlots("09:00", "18:01", 60)
                     timeSlotsForGrid = baseSlots.map { slotData ->
                         if (horasOcupadasSet.contains(slotData.time)) {
                             slotData.copy(status = TimeSlotStatus.Booked)
@@ -130,20 +133,12 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { CustomTitleLuxury(sectionName) },
-                actions = {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 20.dp, start = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        CustomBackIcon { navigateToBack() }
-                    }
+                title = {CustomTitleLuxury(sectionName)},
+                navigationIcon = {
+                    CustomBackIcon { navigateToBack() }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                    containerColor = Color.Transparent
                 )
             )
         }
@@ -159,7 +154,7 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                 modifier = Modifier.fillMaxSize()
             )
             Column(
-                Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp),
+                Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp).verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CustomDescriptionTextField(
