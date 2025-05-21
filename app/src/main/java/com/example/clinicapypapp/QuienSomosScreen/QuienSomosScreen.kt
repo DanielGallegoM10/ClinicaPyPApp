@@ -1,33 +1,33 @@
 package com.example.clinicapypapp.QuienSomosScreen
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.CardQuienSomos
 import com.example.clinicapypapp.components.CustomBackIcon
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.example.clinicapypapp.components.CustomTitleLuxury
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +37,7 @@ fun QuienSomosScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("¿Quiénes somos?", color = Color.Black) },
+                title = { CustomTitleLuxury("¿Quiénes somos?") },
                 navigationIcon = {
                     CustomBackIcon { navigateToBack() }
                 },
@@ -62,14 +62,38 @@ fun QuienSomosScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start
             ) {
-                Text(text = "Somos una clínica dedicada a la salud y bienestar de nuestros pacientes.\n" +
-                        "Ofrecemos servicios médicos de alta calidad y atención personalizada.\n" +
-                        "Nuestro equipo de profesionales altamente capacitados está comprometido con tu salud.\n",
-                    modifier = Modifier.padding(6.dp))
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Somos una clínica dedicada a la salud y bienestar de nuestros pacientes. " +
+                            "Ofrecemos servicios médicos de alta calidad y atención personalizada. " +
+                            "Nuestro equipo de profesionales altamente capacitados está comprometido con tu salud.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 8.dp),
+                    lineHeight = 24.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                )
+
+                Text(
+                    text = "Nuestro Equipo",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
                 CardQuienSomos(
                     nombre = "Carmen López Martínez",
@@ -85,28 +109,84 @@ fun QuienSomosScreen(
                     imagen = R.drawable.lucia
                 )
 
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                )
 
-                Text("Puedes encontrarnos en Calle Falsa Nº22. \n" +
-                        "Teléfono: 999999999 \n" +
-                        "Correo: clinica@gmail.com", modifier = Modifier.padding(6.dp))
+                Text(
+                    text = "Encuéntranos",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    shape = MaterialTheme.shapes.large,
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        ContactInfoItem(
+                            icon = Icons.Filled.LocationOn,
+                            text = "Puedes encontrarnos en Calle Falsa Nº22."
+                        )
+                        ContactInfoItem(
+                            icon = Icons.Filled.Phone,
+                            text = "Teléfono: 999999999"
+                        )
+                        ContactInfoItem(
+                            icon = Icons.Filled.Email,
+                            text = "Correo: clinica@gmail.com"
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
 
                 Image(
                     painter = painterResource(R.drawable.mapa),
-                    contentDescription = null,
+                    contentDescription = "Mapa de ubicación",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .height(220.dp)
-                        .padding(6.dp)
+                        .clip(MaterialTheme.shapes.large)
+                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), MaterialTheme.shapes.large)
                 )
 
+                Spacer(Modifier.height(24.dp))
             }
         }
     }
 }
 
-
-@Preview(showBackground = true)
 @Composable
-fun Prewiew(){
-    QuienSomosScreen {  }
+fun ContactInfoItem(icon: ImageVector, text: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 6.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }

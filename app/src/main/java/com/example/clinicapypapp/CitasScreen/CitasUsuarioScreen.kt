@@ -27,6 +27,7 @@ import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.CitaItemView
 import com.example.clinicapypapp.components.CustomAlertDialog
 import com.example.clinicapypapp.components.CustomBackIcon
+import com.example.clinicapypapp.components.CustomTitleLuxury
 import com.example.clinicapypapp.data.api.ApiService
 import com.example.clinicapypapp.data.api.KtorClient
 import com.example.clinicapypapp.data.models.Cita
@@ -40,7 +41,7 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val apiService = remember { ApiService(KtorClient.httpClient) }
-    var idCitaSeleccionada by remember { mutableStateOf<Int?>(null) } // Usamos Int? por seguridad
+    var idCitaSeleccionada by remember { mutableStateOf<Int?>(null) }
     var mostrarDialogo by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -62,7 +63,7 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mis Citas", color = Color.Black) },
+                title = { CustomTitleLuxury("Mis Citas") },
                 navigationIcon = {
                     IconButton(onClick = navigateToBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = Color.Black)

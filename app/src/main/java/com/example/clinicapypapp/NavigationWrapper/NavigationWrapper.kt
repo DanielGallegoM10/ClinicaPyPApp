@@ -11,6 +11,7 @@ import com.example.clinicapypapp.CitasScreen.CitaScreen
 import com.example.clinicapypapp.CitasScreen.CitasUsuarioScreen
 import com.example.clinicapypapp.LoginScreen.LoginScreen
 import com.example.clinicapypapp.MainScreen.MainScreen
+import com.example.clinicapypapp.MisDatosScreen.MisDatosScreen
 import com.example.clinicapypapp.QuienSomosScreen.QuienSomosScreen
 import com.example.clinicapypapp.ServicesScreens.ServicesScreen
 import com.example.clinicapypapp.entities.Section
@@ -34,7 +35,7 @@ fun NavigationWrapper() {
             }, {
                 navController.navigate(CitasUsuarioDest(mainDest.idUsuario))
             }, {
-
+                navController.navigate(MisDatosDest(mainDest.idUsuario))
             }, {
                 navController.navigate(QuienSomosDest)
             }, {
@@ -86,6 +87,14 @@ fun NavigationWrapper() {
 
         composable<QuienSomosDest> {
             QuienSomosScreen {
+                navController.popBackStack()
+            }
+        }
+
+        composable<MisDatosDest> {
+            backStackEntry ->
+            val datos: MisDatosDest = backStackEntry.toRoute()
+            MisDatosScreen(datos.idUsuario) {
                 navController.popBackStack()
             }
         }

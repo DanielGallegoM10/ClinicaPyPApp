@@ -85,11 +85,6 @@ fun LoginScreen(navigateToMainScreen: (Int) -> Unit) {
                 )
             }
 
-            Text("¿Ha olvidado su contraseña?", fontSize = 16.sp, modifier = Modifier.clickable {
-                if (textoUsuario.isEmpty()){
-                    incorrectoCambioPass = true
-                }else{
-                    cambiaContrasena = true }}, color = Color.Blue)
             Spacer(modifier = Modifier.weight(1f))
 
             CustomButton("Iniciar sesión", enabled = !isLoading) {

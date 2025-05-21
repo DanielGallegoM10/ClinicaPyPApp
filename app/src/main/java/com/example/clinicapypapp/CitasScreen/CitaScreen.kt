@@ -103,17 +103,12 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
 
                     bookedSlotsState = BookedSlotsResult.Success(horasOcupadasList)
 
-                    val horasOcupadasSet = horasOcupadasList.toSet() // Convertir a Set para búsqueda rápida O(1)
-                    // Genera la lista base (ej: 9:00 a 18:00, cada 30 min)
+                    val horasOcupadasSet = horasOcupadasList.toSet()
                     val baseSlots = generateBaseTimeSlots("09:00", "18:00", 30)
-                    // Mapea la lista base, ajustando el estado si la hora está ocupada
                     timeSlotsForGrid = baseSlots.map { slotData ->
                         if (horasOcupadasSet.contains(slotData.time)) {
-                            // Si la hora está en la lista de ocupadas, marcar como Booked
                             slotData.copy(status = TimeSlotStatus.Booked)
                         } else {
-                            // Si no está ocupada, mantener como Available (o Selected si ya estaba seleccionada)
-                            // Por ahora, simplemente la dejamos Available. La selección se maneja aparte.
                             slotData.copy(status = TimeSlotStatus.Available)
                         }
                     }
@@ -135,8 +130,7 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                },
+                title = { CustomTitleLuxury(sectionName) },
                 actions = {
                     Row(
                         Modifier
@@ -168,8 +162,6 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                 Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CustomTitleLuxury(sectionName)
-                Spacer(modifier = Modifier.height(16.dp))
                 CustomDescriptionTextField(
                     texto = descriptionText,
                     labelName = "Cuentanos tu necesidad",
@@ -194,25 +186,18 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .padding(vertical = 8.dp), // Espacio vertical
+                        .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Decidimos qué mostrar según el estado de bookedSlotsState
-                    when (val state = bookedSlotsState) { // Usamos 'state' para smart casting
+                    when (val state = bookedSlotsState) {
 
                         is BookedSlotsResult.Idle -> {
-                            // Si hay fecha seleccionada, indicamos que seleccione hora.
-                            // Si no hay fecha, el LaunchedEffect ya puso Idle, no mostramos nada extra aquí.
                             if (selectedDate != null) {
                                 Text("Selecciona una hora disponible.")
-                            } else {
-                                // Opcional: Podrías poner un mensaje si quieres, pero usualmente no se muestra nada
-                                // Text("Selecciona una fecha.")
                             }
                         }
 
                         is BookedSlotsResult.Loading -> {
-                            // Mostrar indicador de progreso mientras carga
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 CircularProgressIndicator()
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -221,11 +206,10 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                         }
 
                         is BookedSlotsResult.Error -> {
-                            // Mostrar mensaje de error
                             Text(
                                 text = state.message,
                                 color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(horizontal = 16.dp) // Padding por si el mensaje es largo
+                                modifier = Modifier.padding(horizontal = 16.dp)
                             )
                         }
 
@@ -234,32 +218,23 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                                 TimeSlotGrid(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        // .weight(1f) // Quita el weight si el Box no está dentro de una Column con peso
-                                        .padding(bottom = 8.dp), // Añade padding si es necesario
-                                    timeSlots = timeSlotsForGrid, // <-- Pasa la lista actualizada
+                                        .padding(bottom = 8.dp),
+                                    timeSlots = timeSlotsForGrid,
                                     onTimeSelected = { timeClicked ->
-                                        // --- Lógica de selección (siguiente sub-paso) ---
-                                        // Actualizar selectedTimeSlot y el estado visual de timeSlotsForGrid
-                                        // (Lo detallamos en 5.5)
-                                        selectedTimeSlot = timeClicked // Guarda la hora "HH:mm"
+                                        selectedTimeSlot = timeClicked
 
-                                        // Actualiza visualmente la lista para reflejar la selección
                                         timeSlotsForGrid = timeSlotsForGrid.map { slot ->
                                             when {
-                                                // Marcar el clickeado como Selected (si no está Booked)
                                                 slot.time == timeClicked && slot.status != TimeSlotStatus.Booked ->
                                                     slot.copy(status = TimeSlotStatus.Selected)
-                                                // Desmarcar el previamente seleccionado (si no está Booked)
                                                 slot.status == TimeSlotStatus.Selected && slot.status != TimeSlotStatus.Booked ->
                                                     slot.copy(status = TimeSlotStatus.Available)
-                                                // Mantener los demás como están (Available o Booked)
                                                 else -> slot
                                             }
                                         }
                                     }
                                 )
                             } else {
-                                // Mostrar mensaje si, después de cargar, no hay slots (ej: día festivo)
                                 Text("No hay horas disponibles para este día.")
                             }
                         }

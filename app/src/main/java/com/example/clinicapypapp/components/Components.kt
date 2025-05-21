@@ -2,6 +2,7 @@ package com.example.clinicapypapp.components
 
 import android.os.Build
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -30,11 +31,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -169,47 +172,42 @@ fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Long)
 
 @Composable
 fun TimeSlotGrid(
-    modifier: Modifier = Modifier, // Permite pasar modificadores desde fuera
-    timeSlots: List<TimeSlotData>, // La lista de slots con su estado actual
-    onTimeSelected: (String) -> Unit // Lambda que se llama cuando se pulsa una hora disponible
+    modifier: Modifier = Modifier,
+    timeSlots: List<TimeSlotData>,
+    onTimeSelected: (String) -> Unit
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 85.dp), // Ajusta el tamaño mínimo de cada celda
-        modifier = modifier, // Aplica el modificador pasado (ej: .weight(1f))
+        columns = GridCells.Adaptive(minSize = 85.dp),
+        modifier = modifier,
         contentPadding = PaddingValues(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp), // Espacio horizontal entre celdas
-        verticalArrangement = Arrangement.spacedBy(8.dp)     // Espacio vertical entre celdas
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(timeSlots, key = { it.time }) { slotData -> // Usar 'time' como key para optimizar recomposiciones
+        items(timeSlots, key = { it.time }) { slotData ->
 
-            // Determinar si el botón debe estar habilitado
             val isEnabled = slotData.status != TimeSlotStatus.Booked
 
-            // Determinar los colores según el estado
             val containerColor = when (slotData.status) {
-                TimeSlotStatus.Available -> MaterialTheme.colorScheme.surfaceVariant // Color para disponible
-                TimeSlotStatus.Booked -> Color.Gray          // Color para ocupado
-                TimeSlotStatus.Selected -> MaterialTheme.colorScheme.primary   // Color para seleccionado
+                TimeSlotStatus.Available -> MaterialTheme.colorScheme.surfaceVariant
+                TimeSlotStatus.Booked -> Color.Gray
+                TimeSlotStatus.Selected -> MaterialTheme.colorScheme.primary
             }
             val contentColor = when (slotData.status) {
                 TimeSlotStatus.Available -> MaterialTheme.colorScheme.onSurfaceVariant
                 TimeSlotStatus.Booked -> Color.Gray
                 TimeSlotStatus.Selected -> MaterialTheme.colorScheme.onPrimary
             }
-            // Colores específicos cuando está deshabilitado (ocupado)
             val disabledContainerColor =Color.Gray
             val disabledContentColor = Color.Black
 
             Button(
                 onClick = {
-                    // Solo llama a onTimeSelected si NO está ocupado
                     if (isEnabled) {
                         onTimeSelected(slotData.time)
                     }
-                    // Si está ocupado, el click no hace nada porque enabled=false
                 },
-                enabled = isEnabled, // Deshabilitado si está 'Booked'
-                shape = MaterialTheme.shapes.medium, // O la forma que prefieras
+                enabled = isEnabled,
+                shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = containerColor,
                     contentColor = contentColor,
@@ -217,12 +215,12 @@ fun TimeSlotGrid(
                     disabledContentColor = disabledContentColor
                 ),
                 modifier = Modifier
-                    .height(45.dp) // Altura fija para los botones
-                    .fillMaxWidth() // Ocupar el ancho de la celda de la grid
+                    .height(45.dp)
+                    .fillMaxWidth()
             ) {
                 Text(
                     text = slotData.time,
-                    style = MaterialTheme.typography.bodyMedium // O el estilo que prefieras
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -311,7 +309,6 @@ fun DatePickerField(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            // Aplicamos el clickable al Box
             .clickable { showDialog = true }
     ) {
         OutlinedTextField(
@@ -1208,6 +1205,96 @@ fun CardQuienSomos(
 
 }
 
+@Composable
+fun UserDataItem(icon: ImageVector, label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            modifier = Modifier.size(28.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(Modifier.width(16.dp))
+        Column {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 14.sp
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 18.sp
+            )
+        }
+    }
+    Spacer(Modifier.height(4.dp))
+}
+
+@Composable
+fun CardQuienSomos(
+    nombre: String,
+    especialidad: String,
+    descripcion: String,
+    @DrawableRes imagen: Int,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Image(
+                painter = painterResource(id = imagen),
+                contentDescription = "Foto de $nombre",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+            )
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = nombre,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = especialidad,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = descripcion,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 20.sp
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun ComponentsPreview() {

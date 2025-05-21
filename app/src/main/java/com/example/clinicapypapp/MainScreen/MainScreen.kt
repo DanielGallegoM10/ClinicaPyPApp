@@ -24,7 +24,7 @@ fun MainScreen(
     idUsuario: Int,
     navigateToServices: (ServicesDest) -> Unit,
     navigateToMisCitas: () -> Unit,
-    navigateToMisDatos: () -> Unit,
+    navigateToMisDatos: (idUsuario: Int) -> Unit,
     navigateToQuienSomos: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
@@ -51,9 +51,9 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { },
+                title = {CustomTitleLuxury("Bienvenido a Clinica PyP") },
                 actions = { IconUserMenu(
-                    navigateToMisDatos,
+                    { navigateToMisDatos(idUsuario) },
                     navigateToMisCitas,
                     navigateToQuienSomos,
                     onCerrarSesion
@@ -79,9 +79,6 @@ fun MainScreen(
                     .padding(bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
-                CustomTitleLuxury("Bienvenido a Clinica PyP")
-                Spacer(modifier = Modifier.height(16.dp))
                 TextWithDivider("Selecciona una sección")
                 Spacer(modifier = Modifier.height(16.dp))
 

@@ -68,7 +68,7 @@ fun ServicesScreen(idUsuario: Int, sectionId: Int, sectionName: String, navigate
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {},
+                title = {CustomTitleLuxury(sectionName)},
                 navigationIcon = {
                     CustomBackIcon { navigateToBack() }
                 },
@@ -96,8 +96,6 @@ fun ServicesScreen(idUsuario: Int, sectionId: Int, sectionName: String, navigate
                     .padding(bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CustomTitleLuxury(sectionName)
-                Spacer(modifier = Modifier.height(16.dp))
                 TextWithDivider("Seleccione el servicio")
                 Spacer(modifier = Modifier.height(16.dp))
 
