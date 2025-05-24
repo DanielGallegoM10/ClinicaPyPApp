@@ -39,7 +39,12 @@ fun NavigationWrapper() {
             }, {
                 navController.navigate(QuienSomosDest(mainDest.idUsuario))
             }, {
-                navController.navigate(LoginDest)
+                navController.navigate(LoginDest){
+                    popUpTo(LoginDest){
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
             }
             )
         }
