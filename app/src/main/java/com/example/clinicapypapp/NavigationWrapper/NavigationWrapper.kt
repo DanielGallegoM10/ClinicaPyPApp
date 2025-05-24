@@ -37,17 +37,17 @@ fun NavigationWrapper() {
             }, {
                 navController.navigate(MisDatosDest(mainDest.idUsuario))
             }, {
-                navController.navigate(QuienSomosDest)
+                navController.navigate(QuienSomosDest(mainDest.idUsuario))
             }, {
                 navController.navigate(LoginDest)
             }
-
             )
         }
 
         composable<ServicesDest> { backStackEntry ->
             val section: ServicesDest = backStackEntry.toRoute()
-            ServicesScreen(section.idUsuario, section.idSeccion, section.sectionName,
+            ServicesScreen(
+                section.idUsuario, section.idSeccion, section.sectionName,
                 { navController.popBackStack() },
                 { servicioSeleccionado ->
                     val destinoCita = CitaDest(
@@ -58,6 +58,17 @@ fun NavigationWrapper() {
                         section.sectionName
                     )
                     navController.navigate(destinoCita)
+                },
+                {
+                    navController.navigate(MainDest(section.idUsuario))
+                },
+                {
+                    navController.navigate(CitasUsuarioDest(section.idUsuario))
+                },
+                {
+                    navController.navigate(MisDatosDest(section.idUsuario))
+                }, {
+                    navController.navigate(QuienSomosDest(section.idUsuario))
                 })
 
         }
@@ -69,10 +80,22 @@ fun NavigationWrapper() {
                 section.idSeccion,
                 section.idServicio,
                 section.idEspecialista,
-                section.sectionName
-            ) {
-                navController.popBackStack()
-            }
+                section.sectionName,
+                {
+                    navController.popBackStack()
+                },
+                {
+                    navController.navigate(MainDest(section.idUsuario))
+                },
+                {
+                    navController.navigate(CitasUsuarioDest(section.idUsuario))
+                },
+                {
+                    navController.navigate(MisDatosDest(section.idUsuario))
+                }, {
+                    navController.navigate(QuienSomosDest(section.idUsuario))
+                }
+            )
         }
 
         composable<CitasUsuarioDest> { backStackEntry ->
@@ -80,23 +103,41 @@ fun NavigationWrapper() {
             CitasUsuarioScreen(section.idUsuario, {
                 navController.popBackStack()
             }, {
-
-
+                navController.navigate(MainDest(section.idUsuario))
+            }, {
+                navController.navigate(MisDatosDest(section.idUsuario))
+            }, {
+                navController.navigate(QuienSomosDest(section.idUsuario))
             })
         }
 
-        composable<QuienSomosDest> {
-            QuienSomosScreen {
+        composable<QuienSomosDest> { backStackEntry ->
+            val obj: QuienSomosDest = backStackEntry.toRoute()
+            QuienSomosScreen(idUsuario = obj.idUsuario, {
                 navController.popBackStack()
-            }
+            }, {
+                navController.navigate(CitasUsuarioDest(idUsuario = obj.idUsuario))
+            }, {
+                navController.navigate(MisDatosDest(idUsuario = obj.idUsuario))
+            }, {
+                navController.navigate(MainDest(idUsuario = obj.idUsuario))
+            })
         }
 
-        composable<MisDatosDest> {
-            backStackEntry ->
+        composable<MisDatosDest> { backStackEntry ->
             val datos: MisDatosDest = backStackEntry.toRoute()
-            MisDatosScreen(datos.idUsuario) {
+            MisDatosScreen(
+                datos.idUsuario, {
                 navController.popBackStack()
-            }
+            },
+                {
+                    navController.navigate(CitasUsuarioDest(datos.idUsuario))
+                },
+                {
+                    navController.navigate(MainDest(datos.idUsuario))
+                }, {
+                    navController.navigate(QuienSomosDest(datos.idUsuario))
+                })
         }
     }
 }

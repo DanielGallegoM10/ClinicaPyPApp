@@ -8,11 +8,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,8 +40,14 @@ import com.example.clinicapypapp.components.CustomTitleLuxury
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuienSomosScreen(
-    navigateToBack: () -> Unit
+    idUsuario: Int,
+    navigateToBack: () -> Unit,
+    navigateToMisCitas: () -> Unit,
+    navigateToMisDatos: (idUsuario: Int) -> Unit,
+    navigateToMain: (idUsuario: Int) -> Unit,
 ) {
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,6 +59,44 @@ fun QuienSomosScreen(
                     containerColor = Color.Transparent
                 )
             )
+        },
+        bottomBar = {
+            NavigationBar(containerColor = Color.Transparent){
+                NavigationBar(
+                    containerColor = Color(0xFFFCE4EC)
+                ) {
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 0,
+                        onClick = { selectedItemIndex = 0
+                            navigateToMain(idUsuario) },
+                        icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
+                        label = { Text("Inicio") },
+                        colors =  NavigationBarItemDefaults.colors(
+                            indicatorColor = Color.Transparent
+                        )
+                    )
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 1,
+                        onClick = { selectedItemIndex = 1
+                            navigateToMisDatos(idUsuario) },
+                        icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Mis Datos") },
+                        label = { Text("Mis Datos") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 2,
+                        onClick = { selectedItemIndex = 2
+                            navigateToMisCitas()},
+                        icon = { Icon(Icons.Filled.CalendarToday, contentDescription = "Mis Citas") },
+                        label = { Text("Mis Citas") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 3,
+                        onClick = { selectedItemIndex = 3},
+                        icon = { Icon(Icons.Filled.QuestionMark, contentDescription = "¿Quien Somos?") },
+                        label = { Text("¿Quien Somos?", textAlign = TextAlign.Center) }
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Box(

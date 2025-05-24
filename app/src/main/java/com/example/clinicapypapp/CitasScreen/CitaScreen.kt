@@ -17,10 +17,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -28,6 +37,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -39,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.BookedSlotsResult
@@ -66,7 +77,18 @@ import kotlin.coroutines.cancellation.CancellationException
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: Int, sectionName: String, navigateToBack: () -> Unit) {
+fun CitaScreen(
+    idUsuario: Int,
+    idSeccion: Int,
+    idServicio: Int,
+    idEspecialista: Int,
+    sectionName: String,
+    navigateToBack: () -> Unit,
+    navigateToMain: (idUsuario: Int) -> Unit,
+    navigateToMisCitas: (idUsuario: Int) -> Unit,
+    navigateToMisDatos: (idUsuario: Int) -> Unit,
+    navigateToQuienSomos: (idUsuario: Int) -> Unit
+) {
     var descriptionText by rememberSaveable { mutableStateOf("") }
     var selectedDate by rememberSaveable { mutableStateOf<Long?>(null) }
 
@@ -86,6 +108,7 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
 
     val apiDateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(key1 = selectedDate, key2 = idEspecialista) {
         if (selectedDate != null) {
@@ -120,10 +143,12 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                     bookedSlotsState = BookedSlotsResult.Idle
 
                 } catch (e: Exception) {
-                    bookedSlotsState = BookedSlotsResult.Error(e.message ?: "Error al obtener disponibilidad")
+                    bookedSlotsState =
+                        BookedSlotsResult.Error(e.message ?: "Error al obtener disponibilidad")
                 }
             } else {
-                bookedSlotsState = BookedSlotsResult.Error("Error interno con la fecha seleccionada.")
+                bookedSlotsState =
+                    BookedSlotsResult.Error("Error interno con la fecha seleccionada.")
             }
         } else {
             bookedSlotsState = BookedSlotsResult.Idle
@@ -133,7 +158,7 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {CustomTitleLuxury(sectionName)},
+                title = { CustomTitleLuxury(sectionName) },
                 navigationIcon = {
                     CustomBackIcon { navigateToBack() }
                 },
@@ -141,6 +166,45 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                     containerColor = Color.Transparent
                 )
             )
+        },
+        bottomBar = {
+            NavigationBar(containerColor = Color.Transparent){
+                NavigationBar(
+                    containerColor = Color(0xFFFCE4EC)
+                ) {
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 0,
+                        onClick = { selectedItemIndex = 0
+                            navigateToMain(idUsuario) },
+                        icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
+                        label = { Text("Inicio") },
+                        colors =  NavigationBarItemDefaults.colors(
+                            indicatorColor = Color.Transparent
+                        )
+                    )
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 1,
+                        onClick = { selectedItemIndex = 1
+                            navigateToMisDatos(idUsuario) },
+                        icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Mis Datos") },
+                        label = { Text("Mis Datos") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 2,
+                        onClick = { selectedItemIndex = 2
+                            navigateToMisCitas(idUsuario)},
+                        icon = { Icon(Icons.Filled.CalendarToday, contentDescription = "Mis Citas") },
+                        label = { Text("Mis Citas") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 3,
+                        onClick = { selectedItemIndex = 3
+                            navigateToQuienSomos(idUsuario)},
+                        icon = { Icon(Icons.Filled.QuestionMark, contentDescription = "¿Quien Somos?") },
+                        label = { Text("¿Quien Somos?", textAlign = TextAlign.Center) }
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Box(
@@ -154,7 +218,11 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                 modifier = Modifier.fillMaxSize()
             )
             Column(
-                Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp).verticalScroll(rememberScrollState()),
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CustomDescriptionTextField(
@@ -222,8 +290,10 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                                             when {
                                                 slot.time == timeClicked && slot.status != TimeSlotStatus.Booked ->
                                                     slot.copy(status = TimeSlotStatus.Selected)
+
                                                 slot.status == TimeSlotStatus.Selected && slot.status != TimeSlotStatus.Booked ->
                                                     slot.copy(status = TimeSlotStatus.Available)
+
                                                 else -> slot
                                             }
                                         }
@@ -256,16 +326,39 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
                     val fechaStringParaGuardar = try {
                         apiDbDateFormatter.format(java.util.Date(selectedDate!!))
                     } catch (e: Exception) {
-                        Toast.makeText(context, "Error con la fecha seleccionada", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Error con la fecha seleccionada",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@CustomButton
                     }
                     val horaString = selectedTimeSlot!!
 
                     val citaParaEnviar = Cita(
                         idCita = null,
-                        servicio = Servicio(idServicio = idServicio, nombreServicio = "", textoExplicativo = null, duracion = null, seccion = null),
-                        seccion = Seccion(idSeccion = idSeccion, nombreSeccion = "", imagenSeccion = "", especialista = null),
-                        usuario = Usuario(idUsuario = idUsuario, nombre = "", apellidos = "", email = "", dni = "", nombreUsuario = "", contrasenia = ""),
+                        servicio = Servicio(
+                            idServicio = idServicio,
+                            nombreServicio = "",
+                            textoExplicativo = null,
+                            duracion = null,
+                            seccion = null
+                        ),
+                        seccion = Seccion(
+                            idSeccion = idSeccion,
+                            nombreSeccion = "",
+                            imagenSeccion = "",
+                            especialista = null
+                        ),
+                        usuario = Usuario(
+                            idUsuario = idUsuario,
+                            nombre = "",
+                            apellidos = "",
+                            email = "",
+                            dni = "",
+                            nombreUsuario = "",
+                            contrasenia = ""
+                        ),
                         texto = descriptionText.takeIf { it.isNotBlank() } ?: "Sin descripción",
                         fecha = fechaStringParaGuardar,
                         hora = horaString
@@ -297,7 +390,11 @@ fun CitaScreen(idUsuario: Int, idSeccion: Int, idServicio: Int, idEspecialista: 
             },
             title = { Text("¡Cita Registrada!") },
             text = { Text("Tu cita ha sido registrada correctamente.") },
-            confirmButton = { TextButton(onClick = { showSuccessDialog = false; navigateToBack() }) { Text("Aceptar") } }
+            confirmButton = {
+                TextButton(onClick = {
+                    showSuccessDialog = false; navigateToBack()
+                }) { Text("Aceptar") }
+            }
         )
     }
     if (bookingError != null) {

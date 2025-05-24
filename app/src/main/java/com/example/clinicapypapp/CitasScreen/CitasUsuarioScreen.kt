@@ -13,6 +13,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -22,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.CitaItemView
@@ -35,7 +40,13 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelected: (Cita) -> Unit) {
+fun CitasUsuarioScreen(
+    idUsuario: Int,
+    navigateToBack: () -> Unit,
+    navigateToMain: (idUsuario: Int) -> Unit,
+    navigateToMisDatos: (idUsuario: Int) -> Unit,
+    navigateToQuienSomos: (idUsuario: Int) -> Unit,
+) {
 
     var misCitas by remember { mutableStateOf<List<Cita>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -45,6 +56,9 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
     var mostrarDialogo by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
+
+
 
     LaunchedEffect(key1 = idUsuario) {
         isLoading = true
@@ -76,7 +90,55 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
                 )
             )
         },
-        containerColor = Color.Transparent
+        bottomBar = {
+            NavigationBar(containerColor = Color(0xFFFCE4EC)) {
+
+                NavigationBarItem(
+                    selected = selectedItemIndex == 0,
+                    onClick = {
+                        selectedItemIndex = 0
+                        navigateToMain(idUsuario)
+                    },
+                    icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
+                    label = { Text("Inicio") },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = Color.Transparent
+                    )
+                )
+                NavigationBarItem(
+                    selected = selectedItemIndex == 1,
+                    onClick = {
+                        selectedItemIndex = 1
+                        navigateToMisDatos(idUsuario)
+                    },
+                    icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Mis Datos") },
+                    label = { Text("Mis Datos") },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = Color.Transparent
+                    )
+                )
+                NavigationBarItem(
+                    selected = selectedItemIndex == 2,
+                    onClick = { selectedItemIndex = 2 },
+                    icon = { Icon(Icons.Filled.CalendarToday, contentDescription = "Mis Citas") },
+                    label = { Text("Mis Citas") }
+                )
+                NavigationBarItem(
+                    selected = selectedItemIndex == 3,
+                    onClick = {
+                        selectedItemIndex = 3
+                        navigateToQuienSomos(idUsuario)
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Filled.QuestionMark,
+                            contentDescription = "¿Quien Somos?"
+                        )
+                    },
+                    label = { Text("¿Quien Somos?", textAlign = TextAlign.Center) }
+                )
+            }
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -99,6 +161,7 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
                     isLoading -> {
                         CircularProgressIndicator(modifier = Modifier.padding(top = 64.dp))
                     }
+
                     errorMessage != null -> {
                         Text(
                             text = errorMessage ?: "Error desconocido",
@@ -106,6 +169,7 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
                             modifier = Modifier.padding(16.dp)
                         )
                     }
+
                     misCitas.isEmpty() -> {
                         Text(
                             text = "No tienes citas programadas.",
@@ -113,10 +177,15 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
                             modifier = Modifier.padding(16.dp)
                         )
                     }
+
                     else -> {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(start=16.dp, end=16.dp, bottom=16.dp),
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = 16.dp
+                            ),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(misCitas, key = { it.idCita ?: it.hashCode() }) { cita ->
@@ -127,7 +196,11 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
                                             idCitaSeleccionada = id
                                             mostrarDialogo = true
                                         } ?: run {
-                                            Toast.makeText(context, "Error: ID de cita no válido.", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                context,
+                                                "Error: ID de cita no válido.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
                                     }
                                 )
@@ -149,9 +222,17 @@ fun CitasUsuarioScreen(idUsuario: Int, navigateToBack: () -> Unit, onItemSelecte
                                 try {
                                     apiService.deleteCita(idParaBorrar)
                                     misCitas = misCitas.filterNot { it.idCita == idParaBorrar }
-                                    Toast.makeText(context, "Cita anulada correctamente.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Cita anulada correctamente.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "Error al anular la cita: ${e.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Error al anular la cita: ${e.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 } finally {
                                     mostrarDialogo = false
                                     idCitaSeleccionada = null

@@ -15,9 +15,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Feed
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Feed
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
@@ -27,6 +30,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -34,6 +40,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.clinicapypapp.NavigationWrapper.ServicesDest
@@ -59,7 +67,13 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MisDatosScreen(idUsuario: Int, navigateToBack: () -> Unit){
+fun MisDatosScreen(
+    idUsuario: Int,
+    navigateToBack: () -> Unit,
+    navigateToMisCitas: () -> Unit,
+    navigateToMain: (idUsuario: Int) -> Unit,
+    navigateToQuienSomos: (idUsuario: Int) -> Unit
+) {
 
     var usuario by remember { mutableStateOf<Usuario?>(null) }
 
@@ -69,6 +83,8 @@ fun MisDatosScreen(idUsuario: Int, navigateToBack: () -> Unit){
     var error by remember { mutableStateOf<String?>(null) }
 
     val apiService = remember { ApiService(KtorClient.httpClient) }
+
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         isLoading = true
@@ -93,6 +109,66 @@ fun MisDatosScreen(idUsuario: Int, navigateToBack: () -> Unit){
                     containerColor = Color.Transparent
                 )
             )
+        },
+        bottomBar = {
+            NavigationBar(containerColor = Color(0xFFFCE4EC)) {
+                NavigationBarItem(
+                    selected = selectedItemIndex == 0,
+                    onClick = {
+                        selectedItemIndex = 0
+                        navigateToMain(idUsuario)
+                    },
+                    icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
+                    label = { Text("Inicio") },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = Color.Transparent
+                    )
+                )
+                NavigationBarItem(
+                    selected = selectedItemIndex == 1,
+                    onClick = {
+                        selectedItemIndex = 1
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Filled.AccountCircle,
+                            contentDescription = "Mis Datos"
+                        )
+                    },
+                    label = { Text("Mis Datos") },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = Color.Transparent
+                    )
+                )
+                NavigationBarItem(
+                    selected = selectedItemIndex == 2,
+                    onClick = {
+                        selectedItemIndex = 2
+                        navigateToMisCitas()
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Filled.CalendarToday,
+                            contentDescription = "Mis Citas"
+                        )
+                    },
+                    label = { Text("Mis Citas") }
+                )
+                NavigationBarItem(
+                    selected = selectedItemIndex == 3,
+                    onClick = {
+                        selectedItemIndex = 3
+                        navigateToQuienSomos(idUsuario)
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Filled.QuestionMark,
+                            contentDescription = "¿Quien Somos?"
+                        )
+                    },
+                    label = { Text("¿Quien Somos?", textAlign = TextAlign.Center) }
+                )
+            }
         }
     ) { innerPadding ->
         Box(
