@@ -200,7 +200,7 @@ fun TimeSlotGrid(
                 TimeSlotStatus.Booked -> Color.Gray
                 TimeSlotStatus.Selected -> MaterialTheme.colorScheme.onPrimary
             }
-            val disabledContainerColor =Color.Gray
+            val disabledContainerColor = Color.Gray
             val disabledContentColor = Color.Black
 
             Button(
@@ -295,18 +295,58 @@ private fun TimeSlotItem(
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
-object WeekdaysOnlySelectableDates : SelectableDates {
+object LimitedFutureWeekdaysSelectableDates : SelectableDates {
+
+    private val todayStartMillis: Long
+    private val twoMonthsLimitMillis: Long
+    private val minSelectableYear: Int
+    private val maxSelectableYear: Int
+
+    init {
+        val todayCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        todayCal.set(Calendar.HOUR_OF_DAY, 0)
+        todayCal.set(Calendar.MINUTE, 0)
+        todayCal.set(Calendar.SECOND, 0)
+        todayCal.set(Calendar.MILLISECOND, 0)
+        todayStartMillis = todayCal.timeInMillis
+        minSelectableYear = todayCal.get(Calendar.YEAR)
+
+        val limitCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        limitCal.timeInMillis = todayStartMillis
+        limitCal.add(Calendar.MONTH, 2) // Añade 2 meses a la fecha de hoy
+        twoMonthsLimitMillis = limitCal.timeInMillis
+        maxSelectableYear = limitCal.get(Calendar.YEAR)
+    }
 
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         calendar.timeInMillis = utcTimeMillis
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val currentMillisToCompare = calendar.timeInMillis
+
+        if (currentMillisToCompare < todayStartMillis) {
+            return false
+        }
+
+        if (currentMillisToCompare > twoMonthsLimitMillis) {
+            return false
+        }
+
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-        return dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY
+        if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
+            return false
+        }
+
+        return true
     }
 
     override fun isSelectableYear(year: Int): Boolean {
-        return true
+        return year >= minSelectableYear && year <= maxSelectableYear
     }
 }
 
@@ -363,7 +403,7 @@ fun DatePickerField(
     if (showDialog) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = selectedDateMillis ?: System.currentTimeMillis(),
-            selectableDates = WeekdaysOnlySelectableDates
+            selectableDates = LimitedFutureWeekdaysSelectableDates
         )
         DatePickerDialog(
             onDismissRequest = { showDialog = false },
@@ -1171,7 +1211,7 @@ fun CardQuienSomos(
     especialidad: String,
     descripcion: String,
     imagen: Int
-){
+) {
     Card(
         border = BorderStroke(1.5.dp, color = Color.DarkGray),
         elevation = CardDefaults.cardElevation(6.dp),

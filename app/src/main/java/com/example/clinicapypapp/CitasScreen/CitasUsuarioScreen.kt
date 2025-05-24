@@ -91,52 +91,63 @@ fun CitasUsuarioScreen(
             )
         },
         bottomBar = {
-            NavigationBar(containerColor = Color(0xFFFCE4EC)) {
-
-                NavigationBarItem(
-                    selected = selectedItemIndex == 0,
-                    onClick = {
-                        selectedItemIndex = 0
-                        navigateToMain(idUsuario)
-                    },
-                    icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
-                    label = { Text("Inicio") },
-                    colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = Color.Transparent
-                    )
-                )
-                NavigationBarItem(
-                    selected = selectedItemIndex == 1,
-                    onClick = {
-                        selectedItemIndex = 1
-                        navigateToMisDatos(idUsuario)
-                    },
-                    icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Mis Datos") },
-                    label = { Text("Mis Datos") },
-                    colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = Color.Transparent
-                    )
-                )
-                NavigationBarItem(
-                    selected = selectedItemIndex == 2,
-                    onClick = { selectedItemIndex = 2 },
-                    icon = { Icon(Icons.Filled.CalendarToday, contentDescription = "Mis Citas") },
-                    label = { Text("Mis Citas") }
-                )
-                NavigationBarItem(
-                    selected = selectedItemIndex == 3,
-                    onClick = {
-                        selectedItemIndex = 3
-                        navigateToQuienSomos(idUsuario)
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Filled.QuestionMark,
-                            contentDescription = "¿Quien Somos?"
+            NavigationBar(containerColor = Color.Transparent) {
+                NavigationBar(containerColor = Color(0xFFFCE4EC)) {
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 0,
+                        onClick = {
+                            selectedItemIndex = 0
+                            navigateToMain(idUsuario)
+                        },
+                        icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
+                        label = { Text("Inicio") },
+                        colors = NavigationBarItemDefaults.colors(
+                            indicatorColor = Color.Transparent
                         )
-                    },
-                    label = { Text("¿Quien Somos?", textAlign = TextAlign.Center) }
-                )
+                    )
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 1,
+                        onClick = {
+                            selectedItemIndex = 1
+                            navigateToMisDatos(idUsuario)
+                        },
+                        icon = {
+                            Icon(
+                                Icons.Filled.AccountCircle,
+                                contentDescription = "Mis Datos"
+                            )
+                        },
+                        label = { Text("Mis Datos") },
+                        colors = NavigationBarItemDefaults.colors(
+                            indicatorColor = Color.Transparent
+                        )
+                    )
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 2,
+                        onClick = { selectedItemIndex = 2 },
+                        icon = {
+                            Icon(
+                                Icons.Filled.CalendarToday,
+                                contentDescription = "Mis Citas"
+                            )
+                        },
+                        label = { Text("Mis Citas") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedItemIndex == 3,
+                        onClick = {
+                            selectedItemIndex = 3
+                            navigateToQuienSomos(idUsuario)
+                        },
+                        icon = {
+                            Icon(
+                                Icons.Filled.QuestionMark,
+                                contentDescription = "¿Quien Somos?"
+                            )
+                        },
+                        label = { Text("¿Quien Somos?", textAlign = TextAlign.Center) }
+                    )
+                }
             }
         }
     ) { innerPadding ->
