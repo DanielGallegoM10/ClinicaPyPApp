@@ -295,22 +295,16 @@ private fun TimeSlotItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // Necesario para SelectableDates
+@OptIn(ExperimentalMaterial3Api::class)
 object WeekdaysOnlySelectableDates : SelectableDates {
 
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-        // El DatePicker trabaja con milisegundos en UTC.
-        // Es importante usar la zona horaria UTC para el Calendar.
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         calendar.timeInMillis = utcTimeMillis
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
         return dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY
     }
 
-    // Para la restricción de fines de semana, no necesitamos limitar los años
-    // más allá de lo que ya hace el DatePicker con su `yearRange`.
-    // Devolver `true` aquí significa que, en lo que respecta a esta regla específica,
-    // todos los años son seleccionables.
     override fun isSelectableYear(year: Int): Boolean {
         return true
     }
@@ -1261,66 +1255,4 @@ fun UserDataItem(icon: ImageVector, label: String, value: String) {
         }
     }
     Spacer(Modifier.height(4.dp))
-}
-
-@Composable
-fun CardQuienSomos(
-    nombre: String,
-    especialidad: String,
-    descripcion: String,
-    @DrawableRes imagen: Int,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            Image(
-                painter = painterResource(id = imagen),
-                contentDescription = "Foto de $nombre",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-            )
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = nombre,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = especialidad,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = descripcion,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 20.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ComponentsPreview() {
-
 }

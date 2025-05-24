@@ -184,7 +184,7 @@ fun QuienSomosScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
+                        containerColor = Color(0xFFFCE4EC).copy(alpha = 0.85f)
                     )
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {

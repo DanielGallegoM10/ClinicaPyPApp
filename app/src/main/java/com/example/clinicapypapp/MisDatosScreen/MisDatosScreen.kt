@@ -219,7 +219,7 @@ fun MisDatosScreen(
                             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                             shape = MaterialTheme.shapes.medium,
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
+                                containerColor = Color(0xFFFCE4EC).copy(alpha = 0.85f)
                             )
                         ) {
                             Column(
