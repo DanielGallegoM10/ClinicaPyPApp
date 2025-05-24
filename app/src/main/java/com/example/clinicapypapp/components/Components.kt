@@ -70,6 +70,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
@@ -107,11 +108,13 @@ import com.example.clinicapypapp.R
 import com.example.clinicapypapp.data.models.Cita
 import com.example.clinicapypapp.data.models.Seccion
 import com.example.clinicapypapp.data.models.Servicio
-import java.sql.Date
+import java.util.Date
 import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
 
 enum class TimeSlotStatus {
@@ -292,6 +295,27 @@ private fun TimeSlotItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class) // Necesario para SelectableDates
+object WeekdaysOnlySelectableDates : SelectableDates {
+
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+        // El DatePicker trabaja con milisegundos en UTC.
+        // Es importante usar la zona horaria UTC para el Calendar.
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        calendar.timeInMillis = utcTimeMillis
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        return dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY
+    }
+
+    // Para la restricción de fines de semana, no necesitamos limitar los años
+    // más allá de lo que ya hace el DatePicker con su `yearRange`.
+    // Devolver `true` aquí significa que, en lo que respecta a esta regla específica,
+    // todos los años son seleccionables.
+    override fun isSelectableYear(year: Int): Boolean {
+        return true
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -302,7 +326,6 @@ fun DatePickerField(
     modifier: Modifier = Modifier
 ) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
     val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
     val displayText = selectedDateMillis?.let { dateFormatter.format(Date(it)) } ?: ""
 
@@ -345,7 +368,8 @@ fun DatePickerField(
 
     if (showDialog) {
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedDateMillis ?: System.currentTimeMillis()
+            initialSelectedDateMillis = selectedDateMillis ?: System.currentTimeMillis(),
+            selectableDates = WeekdaysOnlySelectableDates
         )
         DatePickerDialog(
             onDismissRequest = { showDialog = false },
