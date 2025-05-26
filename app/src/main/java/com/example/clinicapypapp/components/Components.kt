@@ -2,7 +2,6 @@ package com.example.clinicapypapp.components
 
 import android.os.Build
 import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -37,7 +36,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -48,7 +46,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.Cancel
@@ -92,7 +89,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -641,10 +637,11 @@ fun CustomAlertDialog(
 
 @Composable
 fun CustomDialogChangePass(
-    usuario: String,
-    nuevaContrasena: String,
+    idUsuario: Int,
+    newPass: String,
+    newPassConfirm: String,
     onDismiss: () -> Unit,
-    onConfirm: (Any?) -> Unit,
+    onConfirm: (Int?) -> Unit,
     onValueChange: (String) -> Unit
 ) {
     AlertDialog(
@@ -653,25 +650,27 @@ fun CustomDialogChangePass(
         title = { Text("Cambio de Contraseña", fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = usuario,
-                    onValueChange = {},
-                    label = { Text("Usuario") },
-                    readOnly = true,
-                    modifier = Modifier.fillMaxWidth()
+                CustomPassTextField(
+                    texto = newPass,
+                    labelName = "Nueva Contraseña",
+                    onValueChange = onValueChange
                 )
 
                 CustomPassTextField(
-                    texto = nuevaContrasena,
-                    labelName = "Nueva Contraseña",
+                    texto = newPassConfirm,
+                    labelName = "Repetir Nueva Contraseña",
                     onValueChange = onValueChange
                 )
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(nuevaContrasena) },
-                enabled = nuevaContrasena.isNotBlank()
+                onClick = {
+                    if (newPass == newPassConfirm) {
+                        onConfirm(idUsuario)
+                    }
+                },
+                enabled = newPass.isNotBlank()
             ) {
                 Text("Aceptar", color = MaterialTheme.colorScheme.primary)
             }
@@ -1181,15 +1180,14 @@ fun CitaItemView(cita: Cita, onCancelClick: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Cancel,
-                        contentDescription = "Cancel Icon",
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable {
-                                onCancelClick()
-                            },
-                        tint = Color.Black
+                    Text(
+                        text = "Cancelar Cita",
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        modifier = Modifier.clickable {
+                            onCancelClick()
+                        }
                     )
                 }
             }

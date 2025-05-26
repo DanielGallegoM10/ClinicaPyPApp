@@ -241,7 +241,6 @@ fun CitaScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 selectedDate?.let {
                     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                    Text("Fecha seleccionada: ${dateFormatter.format(Date(it))}")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 

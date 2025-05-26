@@ -1,6 +1,9 @@
 package com.example.clinicapypapp.MisDatosScreen
 
+import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,13 +14,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Feed
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Feed
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.QuestionMark
@@ -43,28 +47,32 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.clinicapypapp.NavigationWrapper.ServicesDest
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.CustomBackIcon
+import com.example.clinicapypapp.components.CustomButton
+import com.example.clinicapypapp.components.CustomDialogChangePass
+import com.example.clinicapypapp.components.CustomPassTextField
 import com.example.clinicapypapp.components.CustomTitleLuxury
-import com.example.clinicapypapp.components.SectionList
 import com.example.clinicapypapp.components.UserDataItem
 import com.example.clinicapypapp.data.api.ApiService
 import com.example.clinicapypapp.data.api.KtorClient
 import com.example.clinicapypapp.data.models.Usuario
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MisDatosScreen(
@@ -74,7 +82,7 @@ fun MisDatosScreen(
     navigateToMain: (idUsuario: Int) -> Unit,
     navigateToQuienSomos: (idUsuario: Int) -> Unit
 ) {
-
+    val context = LocalContext.current
     var usuario by remember { mutableStateOf<Usuario?>(null) }
 
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
@@ -83,8 +91,15 @@ fun MisDatosScreen(
     var error by remember { mutableStateOf<String?>(null) }
 
     val apiService = remember { ApiService(KtorClient.httpClient) }
+    val scope = rememberCoroutineScope()
 
     var selectedItemIndex by remember { mutableIntStateOf(0) }
+
+    var isChangePass by rememberSaveable { mutableStateOf(false) }
+
+    var newPass by rememberSaveable { mutableStateOf("") }
+    var newPassConfirm by rememberSaveable { mutableStateOf("") }
+
 
     LaunchedEffect(Unit) {
         isLoading = true
@@ -188,7 +203,8 @@ fun MisDatosScreen(
                 Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 16.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
 
@@ -287,6 +303,78 @@ fun MisDatosScreen(
                                             contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
                                             tint = MaterialTheme.colorScheme.primary
                                         )
+                                    }
+                                }
+
+                                Text(
+                                    text = "¿Desea cambiar su contraseña?",
+                                    color = Color.Blue,
+                                    modifier = Modifier.clickable { isChangePass = true })
+
+                                if (isChangePass) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        CustomPassTextField(newPass, "Nueva Contraseña") {
+                                            newPass = it
+                                        }
+                                        CustomPassTextField(
+                                            newPassConfirm,
+                                            "Repetir Nueva Contraseña"
+                                        ) {
+                                            newPassConfirm = it
+                                        }
+
+                                        CustomButton("Cambiar Contraseña") {
+                                            if (newPass == newPassConfirm) {
+                                                if (newPass != usuario!!.contrasenia) {
+                                                    scope.launch {
+                                                        try {
+                                                            if (newPass.isNotEmpty()) {
+                                                                usuario!!.contrasenia = newPass
+
+                                                                apiService.updateUsuario(
+                                                                    idUsuario,
+                                                                    usuario!!
+                                                                )
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Contraseña cambiada con éxito",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                                isChangePass = false
+                                                            } else {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "La contraseña no puede estar vacía",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            }
+                                                        } catch (e: Exception) {
+                                                            error =
+                                                                "Error al cambiar contraseña: ${e.message}"
+                                                        }
+                                                    }
+                                                }else{
+                                                    Toast.makeText(
+                                                        context,
+                                                        "La nueva contraseña no puede ser igual a la anterior",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            } else {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Las contraseñas no coinciden",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        CustomButton("Cancelar") {
+                                            isChangePass = false
+                                        }
                                     }
                                 }
                             }

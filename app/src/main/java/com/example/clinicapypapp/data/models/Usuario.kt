@@ -10,5 +10,5 @@ data class Usuario(
     val email: String,
     val dni: String,
     val nombreUsuario: String,
-    val contrasenia: String
+    var contrasenia: String
 )

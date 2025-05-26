@@ -1,15 +1,14 @@
 package com.example.clinicapypapp.LoginScreen
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,12 +16,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,10 +40,6 @@ import com.example.clinicapypapp.components.LogoImage
 fun LoginScreen(navigateToMainScreen: (Int) -> Unit) {
     var textoUsuario by rememberSaveable { mutableStateOf("") }
     var textoPass by rememberSaveable { mutableStateOf("") }
-    var cambiaContrasena by rememberSaveable { mutableStateOf(false) }
-    var incorrectoCambioPass by rememberSaveable { mutableStateOf(false) }
-    var nuevaContraseña by rememberSaveable { mutableStateOf("") }
-
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var loginError by rememberSaveable { mutableStateOf<String?>(null) }
 
@@ -65,7 +57,7 @@ fun LoginScreen(navigateToMainScreen: (Int) -> Unit) {
             modifier = Modifier.fillMaxSize()
         )
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -118,15 +110,6 @@ fun LoginScreen(navigateToMainScreen: (Int) -> Unit) {
             }
 
             Spacer(modifier = Modifier.weight(1f))
-
-            if (incorrectoCambioPass){
-                CustomAlertDialog("Error de Cambio de Contraseña", "Debe introducir un usuario para cambiar la contraseña", {incorrectoCambioPass = false}, {incorrectoCambioPass = false})
-            }
-
-            if (cambiaContrasena){
-                CustomDialogChangePass(textoUsuario, nuevaContraseña, {cambiaContrasena = false}, { cambiaContrasena = false }, { nuevaContraseña = it })
-            }
-
         }
     }
 }
