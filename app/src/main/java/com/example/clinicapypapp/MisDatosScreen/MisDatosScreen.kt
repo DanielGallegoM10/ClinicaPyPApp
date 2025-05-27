@@ -343,6 +343,8 @@ fun MisDatosScreen(
                                                                     "Contraseña cambiada con éxito",
                                                                     Toast.LENGTH_SHORT
                                                                 ).show()
+                                                                newPass = ""
+                                                                newPassConfirm = ""
                                                                 isChangePass = false
                                                             } else {
                                                                 Toast.makeText(
