@@ -66,7 +66,10 @@ fun CitasUsuarioScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val apiService = remember { ApiService(KtorClient.httpClient) }
     var idCitaSeleccionada by remember { mutableStateOf<Int?>(null) }
-    var mostrarDialogo by rememberSaveable { mutableStateOf(false) }
+
+    var mostrarDialogoAnulacion by rememberSaveable { mutableStateOf(false) }
+    var mostrarDialogoBorrar by rememberSaveable { mutableStateOf(false) }
+
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var selectedItemIndex by remember { mutableIntStateOf(0) }
@@ -304,7 +307,19 @@ fun CitasUsuarioScreen(
                                             onCancelClick = {
                                                 cita.idCita?.let { id ->
                                                     idCitaSeleccionada = id
-                                                    mostrarDialogo = true
+                                                    mostrarDialogoAnulacion = true
+                                                } ?: run {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Error: ID de cita no válido.",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            },
+                                            onDeleteClick = {
+                                                cita.idCita?.let { id ->
+                                                    idCitaSeleccionada = id
+                                                    mostrarDialogoBorrar = true
                                                 } ?: run {
                                                     Toast.makeText(
                                                         context,
@@ -375,7 +390,19 @@ fun CitasUsuarioScreen(
                                             onCancelClick = {
                                                 cita.idCita?.let { id ->
                                                     idCitaSeleccionada = id
-                                                    mostrarDialogo = true
+                                                    mostrarDialogoAnulacion = true
+                                                } ?: run {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Error: ID de cita no válido.",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            },
+                                            onDeleteClick = {
+                                                cita.idCita?.let { id ->
+                                                    idCitaSeleccionada = id
+                                                    mostrarDialogoBorrar = true
                                                 } ?: run {
                                                     Toast.makeText(
                                                         context,
@@ -405,11 +432,11 @@ fun CitasUsuarioScreen(
                     }
                 }
 
-                if (mostrarDialogo) {
+                if (mostrarDialogoAnulacion) {
                     CustomAlertDialog(
                         "Anulación de cita",
                         "¿Estás seguro de que quieres anular tu cita?",
-                        { mostrarDialogo = false },
+                        { mostrarDialogoAnulacion = false },
                         {
                             val idParaBorrar = idCitaSeleccionada
                             if (idParaBorrar != null) {
@@ -429,18 +456,52 @@ fun CitasUsuarioScreen(
                                             Toast.LENGTH_LONG
                                         ).show()
                                     } finally {
-                                        mostrarDialogo = false
+                                        mostrarDialogoAnulacion = false
                                         idCitaSeleccionada = null
                                     }
                                 }
                             } else {
-                                mostrarDialogo = false
+                                mostrarDialogoAnulacion = false
+                            }
+                        }
+                    )
+                }
+
+                if (mostrarDialogoBorrar) {
+                    CustomAlertDialog(
+                        "Borrado de cita",
+                        "¿Estás seguro de que quieres borrar tu anterior cita?.\n Esto hará que pierdas parte de tu seguimiento.",
+                        { mostrarDialogoBorrar = false },
+                        {
+                            val idParaBorrar = idCitaSeleccionada
+                            if (idParaBorrar != null) {
+                                scope.launch {
+                                    try {
+                                        apiService.deleteCita(idParaBorrar)
+                                        misCitas = misCitas.filterNot { it.idCita == idParaBorrar }
+                                        Toast.makeText(
+                                            context,
+                                            "Cita borrada correctamente.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            context,
+                                            "Error al borrar la cita: ${e.message}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    } finally {
+                                        mostrarDialogoBorrar = false
+                                        idCitaSeleccionada = null
+                                    }
+                                }
+                            } else {
+                                mostrarDialogoBorrar = false
                             }
                         }
                     )
                 }
             }
-
         }
     }
 }

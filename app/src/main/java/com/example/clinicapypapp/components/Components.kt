@@ -106,6 +106,7 @@ import com.example.clinicapypapp.data.models.Seccion
 import com.example.clinicapypapp.data.models.Servicio
 import java.util.Date
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -1111,8 +1112,9 @@ fun UserDropdownMenu(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CitaItemView(cita: Cita, onCancelClick: () -> Unit) {
+fun CitaItemView(cita: Cita, onCancelClick: () -> Unit, onDeleteClick: () -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
     Card(
@@ -1180,15 +1182,27 @@ fun CitaItemView(cita: Cita, onCancelClick: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    Text(
-                        text = "Cancelar Cita",
-                        color = Color.Red,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        modifier = Modifier.clickable {
-                            onCancelClick()
-                        }
-                    )
+                    if (cita.fecha < LocalDate.now().toString()){
+                        Text(
+                            text = "Borrar Cita",
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier.clickable {
+                                onDeleteClick()
+                            }
+                        )
+                    }else {
+                        Text(
+                            text = "Cancelar Cita",
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier.clickable {
+                                onCancelClick()
+                            }
+                        )
+                    }
                 }
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
