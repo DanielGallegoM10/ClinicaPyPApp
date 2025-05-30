@@ -39,12 +39,14 @@ fun MainScreen(
 ) {
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
+    //declaro los estados de la carga de datos y secciones
     var sections by remember { mutableStateOf<List<Seccion>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    val apiService = remember { ApiService(KtorClient.httpClient) }
+    val apiService = remember { ApiService(KtorClient.httpClient) } //objeto para llamar a las funciones API
 
+    //Cargo los servicios de la sección correspondiente
     LaunchedEffect(Unit) {
         isLoading = true
         error = null
@@ -58,6 +60,7 @@ fun MainScreen(
         }
     }
 
+    //Estructura de la pantalla, con Scaffold, TopAppBar y BottomNavigationBar
     Scaffold(
         topBar = {
             TopAppBar(
@@ -130,6 +133,7 @@ fun MainScreen(
                 TextWithDivider("Selecciona una sección")
                 Spacer(modifier = Modifier.height(16.dp))
 
+                //Manejamos los distintos estados de carga
                 when {
                     isLoading -> {
                         Box(
@@ -151,6 +155,7 @@ fun MainScreen(
                         }
                     }
 
+                    //Si todo va bien, mostramos la lista de secciones
                     else -> {
                         SectionList(
                             sections = sections,

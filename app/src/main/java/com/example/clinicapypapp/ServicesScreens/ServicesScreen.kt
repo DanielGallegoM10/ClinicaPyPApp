@@ -65,14 +65,16 @@ fun ServicesScreen(
     navigateToMisDatos: (idUsuario: Int) -> Unit,
     navigateToQuienSomos: (idUsuario: Int) -> Unit) {
 
+    //Declaro los estados de la carga de datos y servicios
     var services by rememberSaveable { mutableStateOf<List<Servicio>>(emptyList()) }
     var isLoading by rememberSaveable { mutableStateOf(true) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
 
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
-    val apiService = remember { ApiService(KtorClient.httpClient) }
+    val apiService = remember { ApiService(KtorClient.httpClient) } //objeto para llamar a las funciones API
 
+    //Cargo los servicios de la sección correspondiente
     LaunchedEffect(key1 = sectionId) {
         isLoading = true
         error = null
@@ -86,6 +88,7 @@ fun ServicesScreen(
         }
     }
 
+    //Estructura de la pantalla, con Scaffold, TopAppBar y BottomNavigationBar
     Scaffold(
         topBar = {
             TopAppBar(
@@ -159,6 +162,7 @@ fun ServicesScreen(
                 TextWithDivider("Seleccione el servicio")
                 Spacer(modifier = Modifier.height(16.dp))
 
+                //Manejamos los distintos estados de carga
                 when {
                     isLoading -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -188,6 +192,7 @@ fun ServicesScreen(
                             )
                         }
                     }
+                    //Si todo va bien, mostramos la lista de servicios
                     else -> {
                         ServiceList(
                             services = services,

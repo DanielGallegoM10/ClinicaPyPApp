@@ -48,6 +48,8 @@ fun QuienSomosScreen(
 ) {
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
+    //Estructura de la pantalla, con Scaffold, TopAppBar y BottomNavigationBar, pantalla meramente estética
+    //sin funcionalidad, mapa de ubicacion implantado como imagen ya que la Key de la API de google vale dinero
     Scaffold(
         topBar = {
             TopAppBar(

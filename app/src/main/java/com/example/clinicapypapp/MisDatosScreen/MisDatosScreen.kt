@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.sp
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.CustomBackIcon
 import com.example.clinicapypapp.components.CustomButton
-import com.example.clinicapypapp.components.CustomDialogChangePass
 import com.example.clinicapypapp.components.CustomPassTextField
 import com.example.clinicapypapp.components.CustomTitleLuxury
 import com.example.clinicapypapp.components.UserDataItem
@@ -82,6 +81,8 @@ fun MisDatosScreen(
     navigateToMain: (idUsuario: Int) -> Unit,
     navigateToQuienSomos: (idUsuario: Int) -> Unit
 ) {
+
+    //Declaro los estados de la carga de datos y usuario
     val context = LocalContext.current
     var usuario by remember { mutableStateOf<Usuario?>(null) }
 
@@ -90,17 +91,19 @@ fun MisDatosScreen(
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    val apiService = remember { ApiService(KtorClient.httpClient) }
+    val apiService = remember { ApiService(KtorClient.httpClient) } //objeto para llamar a las funciones API
     val scope = rememberCoroutineScope()
 
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
+
+    //estados para cambiar contraseña
     var isChangePass by rememberSaveable { mutableStateOf(false) }
 
     var newPass by rememberSaveable { mutableStateOf("") }
     var newPassConfirm by rememberSaveable { mutableStateOf("") }
 
-
+    //Cargo los datos del usuario
     LaunchedEffect(Unit) {
         isLoading = true
         error = null
@@ -113,6 +116,7 @@ fun MisDatosScreen(
         }
     }
 
+    //Estructura de la pantalla, con Scaffold, TopAppBar y BottomNavigationBar
     Scaffold(
         topBar = {
             TopAppBar(
@@ -208,6 +212,7 @@ fun MisDatosScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
 
+                //manejo de estados de carga y error
                 when {
                     isLoading -> {
                         Box(
@@ -229,6 +234,7 @@ fun MisDatosScreen(
                         }
                     }
 
+                    //Si todo va bien, muestro los datos del usuario en una tarjeta
                     else -> {
                         Card(
                             modifier = Modifier
@@ -311,6 +317,8 @@ fun MisDatosScreen(
                                     color = Color.Blue,
                                     modifier = Modifier.clickable { isChangePass = true })
 
+
+                                //Dialogo para cambiar contraseña, si se acepta, se actualiza la contraseña del usuario
                                 if (isChangePass) {
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally,

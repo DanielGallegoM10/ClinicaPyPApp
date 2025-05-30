@@ -89,6 +89,7 @@ fun CitaScreen(
     navigateToMisDatos: (idUsuario: Int) -> Unit,
     navigateToQuienSomos: (idUsuario: Int) -> Unit
 ) {
+    //Declaración de estados necesarios para la pantalla de coger cita
     var descriptionText by rememberSaveable { mutableStateOf("") }
     var selectedDate by rememberSaveable { mutableStateOf<Long?>(null) }
 
@@ -102,14 +103,15 @@ fun CitaScreen(
 
     var timeSlotsForGrid by remember { mutableStateOf<List<TimeSlotData>>(emptyList()) }
 
-    val apiService = remember { ApiService(KtorClient.httpClient) }
-    val scope = rememberCoroutineScope()
+    val apiService = remember { ApiService(KtorClient.httpClient) } //objeto para llamar a las funciones API
+    val scope = rememberCoroutineScope() //Para lanzar corrutinas
     val context = LocalContext.current
 
     val apiDateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
+    //Cargo las horas ocupadas para la fecha seleccionada
     LaunchedEffect(key1 = selectedDate, key2 = idEspecialista) {
         if (selectedDate != null) {
             val fechaApiString = try {
@@ -118,6 +120,7 @@ fun CitaScreen(
                 null
             }
 
+            //Si la fecha es válida, cargo las horas ocupadas
             if (fechaApiString != null) {
                 bookedSlotsState = BookedSlotsResult.Loading
 
@@ -155,6 +158,7 @@ fun CitaScreen(
         }
     }
 
+    //Estructura de la pantalla, con Scaffold, TopAppBar y BottomNavigationBar
     Scaffold(
         topBar = {
             TopAppBar(
@@ -251,14 +255,15 @@ fun CitaScreen(
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    when (val state = bookedSlotsState) {
 
+                    when (val state = bookedSlotsState) {
+                        //Si no hay horas ocupadas, mostramos un mensaje
                         is BookedSlotsResult.Idle -> {
                             if (selectedDate != null) {
                                 Text("Selecciona una hora disponible.")
                             }
                         }
-
+                        //cargando, mostramos un indicador de carga
                         is BookedSlotsResult.Loading -> {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 CircularProgressIndicator()
@@ -267,6 +272,7 @@ fun CitaScreen(
                             }
                         }
 
+                        //Si hay un error, mostramos un mensaje de error
                         is BookedSlotsResult.Error -> {
                             Text(
                                 text = state.message,
@@ -275,6 +281,7 @@ fun CitaScreen(
                             )
                         }
 
+                        //Si hay horas disponibles, mostramos las horas disponibles
                         is BookedSlotsResult.Success -> {
                             if (timeSlotsForGrid.isNotEmpty()) {
                                 TimeSlotGrid(
@@ -334,6 +341,7 @@ fun CitaScreen(
                     }
                     val horaString = selectedTimeSlot!!
 
+                    //Creo la cita
                     val citaParaEnviar = Cita(
                         idCita = null,
                         servicio = Servicio(
@@ -363,11 +371,12 @@ fun CitaScreen(
                         hora = horaString
                     )
 
+                    //Creamos la cita en la base de datos
                     scope.launch {
                         isBooking = true
                         bookingError = null
                         try {
-                            val citaCreada = apiService.createCita(citaParaEnviar)
+                            apiService.createCita(citaParaEnviar)
                             showSuccessDialog = true
                         } catch (e: Exception) {
                             bookingError = "Error al crear cita: ${e.message}"

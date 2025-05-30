@@ -14,13 +14,14 @@ import com.example.clinicapypapp.MainScreen.MainScreen
 import com.example.clinicapypapp.MisDatosScreen.MisDatosScreen
 import com.example.clinicapypapp.QuienSomosScreen.QuienSomosScreen
 import com.example.clinicapypapp.ServicesScreens.ServicesScreen
-import com.example.clinicapypapp.entities.Section
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationWrapper() {
+    //Instancio el controlador de navegación
     val navController = rememberNavController()
 
+    //Declaro las rutas de navegación y ruta de inicio
     NavHost(navController = navController, startDestination = LoginDest) {
         composable<LoginDest> {
             LoginScreen { idUsuario ->

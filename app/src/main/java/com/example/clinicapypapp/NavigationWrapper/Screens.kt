@@ -1,7 +1,7 @@
 package com.example.clinicapypapp.NavigationWrapper
 
 import kotlinx.serialization.Serializable
-
+//Declaro las rutas de navegación, tanto como objetos como dataclass
 @Serializable
 object LoginDest
 
@@ -16,11 +16,6 @@ data class ServicesDest(
     val idSeccion: Int,
     val idEspecialista: Int,
     val sectionName: String
-)
-
-@Serializable
-data class UsuarioDest(
-    val idUsuario: Int
 )
 
 @Serializable

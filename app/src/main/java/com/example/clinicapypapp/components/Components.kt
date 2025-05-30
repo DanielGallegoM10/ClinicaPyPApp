@@ -113,16 +113,19 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
-
+// Objetos para representar los estados de las horas de las citas
+//Clase enum con tres estados posibles
 enum class TimeSlotStatus {
     Available, Booked, Selected
 }
 
+//objeto para representar una hora de la cita
 data class TimeSlotData(
     val time: String,
     val status: TimeSlotStatus
 )
 
+//Interfaz para representar el estado de las citas
 sealed interface BookedSlotsResult {
     object Idle : BookedSlotsResult
     object Loading : BookedSlotsResult
@@ -130,6 +133,7 @@ sealed interface BookedSlotsResult {
     data class Error(val message: String) : BookedSlotsResult
 }
 
+//Funciones para generar las horas de las citas
 @RequiresApi(Build.VERSION_CODES.O)
 fun generateBaseTimeSlots(
     startTime: String,
@@ -153,23 +157,7 @@ fun generateBaseTimeSlots(
     return slots
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Long): List<String> {
-    val slots = mutableListOf<String>()
-    try {
-        var currentTime = LocalTime.parse(startTime)
-        val lastTime = LocalTime.parse(endTime)
-        val formatter = DateTimeFormatter.ofPattern("HH:mm")
-        while (currentTime.isBefore(lastTime)) {
-            slots.add(currentTime.format(formatter))
-            currentTime = currentTime.plusMinutes(intervalMinutes)
-        }
-    } catch (e: Exception) {
-        Log.e("generateTimeSlots", "Error generating time slots: ${e.message}")
-    }
-    return slots
-}
-
+//Crea una lazy grid con las horas de las citas
 @Composable
 fun TimeSlotGrid(
     modifier: Modifier = Modifier,
@@ -227,72 +215,10 @@ fun TimeSlotGrid(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TimeSlotItem(
-    timeSlotData: TimeSlotData,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val cardColors = when (timeSlotData.status) {
-        TimeSlotStatus.Available -> CardDefaults.cardColors(
-            containerColor = Color.White,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        )
-
-        TimeSlotStatus.Booked -> CardDefaults.cardColors(
-            containerColor = Color.LightGray.copy(alpha = 0.6f),
-            contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-        )
-
-        TimeSlotStatus.Selected -> CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        )
-    }
-
-    val cardElevation = if (timeSlotData.status == TimeSlotStatus.Booked) {
-        CardDefaults.cardElevation(defaultElevation = 1.dp)
-    } else {
-        CardDefaults.cardElevation(defaultElevation = 4.dp)
-    }
-
-    val border = if (timeSlotData.status == TimeSlotStatus.Available) {
-        BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-        )
-    } else {
-        null
-    }
-
-
-    Card(
-        modifier = modifier
-            .aspectRatio(1.8f)
-            .height(IntrinsicSize.Min),
-        shape = RoundedCornerShape(8.dp),
-        colors = cardColors,
-        elevation = cardElevation,
-        border = border,
-        onClick = onClick,
-        enabled = timeSlotData.status != TimeSlotStatus.Booked
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = timeSlotData.time,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-
+//Objeto que limita las fechas a la hora de ser seleccionadas, tres posibles condiciones:
+// -No puede ser en el pasado
+// -No puede ser un domingo o un sábado
+// -No puede ser a 2 meses vista de la fecha de hoy
 @OptIn(ExperimentalMaterial3Api::class)
 object LimitedFutureWeekdaysSelectableDates : SelectableDates {
 
@@ -347,7 +273,7 @@ object LimitedFutureWeekdaysSelectableDates : SelectableDates {
     }
 }
 
-
+//Componente para seleccionar una fecha
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerField(
@@ -421,6 +347,7 @@ fun DatePickerField(
     }
 }
 
+//Componente usado en la descripcion de la necesidad de la cita
 @Composable
 fun CustomDescriptionTextField(
     texto: String,
@@ -447,6 +374,7 @@ fun CustomDescriptionTextField(
     )
 }
 
+//Componente de cuadro de texto personalizado
 @Composable
 fun CustomTextField(
     texto: String,
@@ -472,6 +400,7 @@ fun CustomTextField(
     )
 }
 
+//Cuadro de texto de contraseña personalizado
 @Composable
 fun CustomPassTextField(
     texto: String,
@@ -506,6 +435,7 @@ fun CustomPassTextField(
     )
 }
 
+//Componente de botón personalizado
 @Composable
 fun CustomButton(
     texto: String,
@@ -532,43 +462,7 @@ fun CustomButton(
     }
 }
 
-@Composable
-fun CustomTitle(texto: String) {
-    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
-    val textColor = MaterialTheme.colorScheme.onSurfaceVariant
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(16.dp),
-                ambientColor = Color.Black.copy(alpha = 0.08f),
-                spotColor = Color.Black.copy(alpha = 0.08f)
-            )
-            .padding(vertical = 20.dp, horizontal = 32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = texto,
-            fontSize = 24.sp,
-            textAlign = TextAlign.Center,
-            fontFamily = FontFamily.SansSerif,
-            fontWeight = FontWeight.Bold,
-            color = textColor,
-            letterSpacing = 1.sp
-        )
-    }
-}
-
+//Componente de titulo personalizado, con un estilo bonito
 @Composable
 fun CustomTitleLuxury(texto: String) {
     val infiniteTransition = rememberInfiniteTransition(label = "GradientAnimation")
@@ -611,6 +505,7 @@ fun CustomTitleLuxury(texto: String) {
     )
 }
 
+//Componente de dialogo personalizado
 @Composable
 fun CustomAlertDialog(
     titulo: String,
@@ -636,55 +531,7 @@ fun CustomAlertDialog(
     )
 }
 
-@Composable
-fun CustomDialogChangePass(
-    idUsuario: Int,
-    newPass: String,
-    newPassConfirm: String,
-    onDismiss: () -> Unit,
-    onConfirm: (Int?) -> Unit,
-    onValueChange: (String) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = { onDismiss() },
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
-        title = { Text("Cambio de Contraseña", fontWeight = FontWeight.Bold) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                CustomPassTextField(
-                    texto = newPass,
-                    labelName = "Nueva Contraseña",
-                    onValueChange = onValueChange
-                )
-
-                CustomPassTextField(
-                    texto = newPassConfirm,
-                    labelName = "Repetir Nueva Contraseña",
-                    onValueChange = onValueChange
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (newPass == newPassConfirm) {
-                        onConfirm(idUsuario)
-                    }
-                },
-                enabled = newPass.isNotBlank()
-            ) {
-                Text("Aceptar", color = MaterialTheme.colorScheme.primary)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { onDismiss() }) {
-                Text("Cancelar", color = MaterialTheme.colorScheme.onBackground)
-            }
-        }
-    )
-}
-
-
+//Componente de icono de volver personalizado
 @Composable
 fun CustomBackIcon(navigateToBack: () -> Unit) {
     Icon(
@@ -698,40 +545,7 @@ fun CustomBackIcon(navigateToBack: () -> Unit) {
     )
 }
 
-
-@Composable
-fun SearchView(
-    busqueda: String,
-    onQueryChanged: (String) -> Unit,
-    placeholder: String = "Buscar prueba"
-) {
-    OutlinedTextField(
-        value = busqueda,
-        onValueChange = onQueryChanged,
-        placeholder = { Text(placeholder) },
-        leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar") },
-        trailingIcon = {
-            if (busqueda.isNotEmpty()) {
-                IconButton(onClick = { onQueryChanged("") }) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Cerrar busqueda")
-                }
-            }
-        },
-        singleLine = true,
-        shape = RoundedCornerShape(12.dp),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            cursorColor = MaterialTheme.colorScheme.primary,
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline
-        ),
-        modifier = Modifier
-            .padding(8.dp)
-    )
-}
-
+//funcion que devuelve el id de la imagen correspondiente al nombre de la seccion
 @Composable
 fun getDrawableIdFromString(imageIdentifier: String): Int {
 
@@ -745,6 +559,7 @@ fun getDrawableIdFromString(imageIdentifier: String): Int {
     }
 }
 
+//Componente de tarjeta de sección personalizado
 @Composable
 fun SectionCard(
     section: Seccion,
@@ -799,6 +614,7 @@ fun SectionCard(
     }
 }
 
+//Componente de lista de secciones personalizado
 @Composable
 fun SectionList(sections: List<Seccion>, onItemSelected: (Seccion) -> Unit) {
     val visible = rememberSaveable { mutableStateOf(false) }
@@ -827,6 +643,7 @@ fun SectionList(sections: List<Seccion>, onItemSelected: (Seccion) -> Unit) {
 }
 
 
+//Componente de icono de menu personalizado
 @Composable
 fun IconUserMenu(
     onNavigateToMisDatos: () -> Unit,
@@ -867,6 +684,7 @@ fun IconUserMenu(
     }
 }
 
+//Componente de texto con separador personalizado
 @Composable
 fun TextWithDivider(
     text: String,
@@ -911,6 +729,7 @@ fun TextWithDivider(
     }
 }
 
+//Logo de imagen personalizado, utilizado en el login
 @Composable
 fun LogoImage(
     image: Int,
@@ -929,6 +748,7 @@ fun LogoImage(
     )
 }
 
+//Componente de tarjeta de servicio personalizado
 @Composable
 fun ServiceCard(
     service: Servicio,
@@ -984,6 +804,7 @@ fun ServiceCard(
     }
 }
 
+//Componente de dialogo de informacion de servicio personalizado
 @Composable
 fun DialogInfoService(
     service: Servicio,
@@ -1030,6 +851,7 @@ fun DialogInfoService(
     )
 }
 
+//Componente de lista de servicios
 @Composable
 fun ServiceList(services: List<Servicio>, onItemSelected: (Servicio) -> Unit) {
 
@@ -1063,12 +885,14 @@ fun ServiceList(services: List<Servicio>, onItemSelected: (Servicio) -> Unit) {
     }
 }
 
+//Clase de opcion del menu personalizado
 data class DropdownOption(
     val text: String,
     val icon: ImageVector,
     val onClick: () -> Unit
 )
 
+//Componente de menu personalizado, implementado al clicar en el icono de usuario
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserDropdownMenu(
@@ -1112,6 +936,7 @@ fun UserDropdownMenu(
     }
 }
 
+//Componente de cita personalizado
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CitaItemView(cita: Cita, onCancelClick: () -> Unit, onDeleteClick: () -> Unit) {
@@ -1217,6 +1042,7 @@ fun CitaItemView(cita: Cita, onCancelClick: () -> Unit, onDeleteClick: () -> Uni
     }
 }
 
+//Componente de tarjeta de quien somos personalizado
 @Composable
 fun CardQuienSomos(
     nombre: String,
@@ -1275,6 +1101,7 @@ fun CardQuienSomos(
 
 }
 
+//Componente de datos de usuario personalizado
 @Composable
 fun UserDataItem(icon: ImageVector, label: String, value: String) {
     Row(

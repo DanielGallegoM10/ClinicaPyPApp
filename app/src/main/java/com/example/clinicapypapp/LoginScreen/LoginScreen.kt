@@ -29,7 +29,6 @@ import kotlinx.coroutines.launch
 import com.example.clinicapypapp.R
 import com.example.clinicapypapp.components.CustomAlertDialog
 import com.example.clinicapypapp.components.CustomButton
-import com.example.clinicapypapp.components.CustomDialogChangePass
 import com.example.clinicapypapp.components.CustomPassTextField
 import com.example.clinicapypapp.components.CustomTextField
 import com.example.clinicapypapp.components.LogoImage
@@ -38,13 +37,16 @@ import com.example.clinicapypapp.components.LogoImage
 
 @Composable
 fun LoginScreen(navigateToMainScreen: (Int) -> Unit) {
+    //estados de texto de usuario y contraseña
     var textoUsuario by rememberSaveable { mutableStateOf("") }
     var textoPass by rememberSaveable { mutableStateOf("") }
+
+    //declaro los estados de carga y error
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var loginError by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val scope = rememberCoroutineScope()
-    val apiService = remember { ApiService(KtorClient.httpClient) }
+    val scope = rememberCoroutineScope() //declaro un scope para las corrutinas
+    val apiService = remember { ApiService(KtorClient.httpClient) } //objeto para llamar a las funciones API
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -80,6 +82,7 @@ fun LoginScreen(navigateToMainScreen: (Int) -> Unit) {
             Spacer(modifier = Modifier.weight(1f))
 
             CustomButton("Iniciar sesión", enabled = !isLoading) {
+                // Realizar la acción de inicio de sesión, comprobando los campos en la API
                 scope.launch {
                     isLoading = true
                     loginError = null

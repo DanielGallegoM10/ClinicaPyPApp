@@ -61,21 +61,21 @@ fun CitasUsuarioScreen(
     navigateToQuienSomos: (idUsuario: Int) -> Unit,
 ) {
 
+    //Declaración de estados necesarios para la pantalla de mis citas
     var misCitas by remember { mutableStateOf<List<Cita>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    val apiService = remember { ApiService(KtorClient.httpClient) }
+    val apiService = remember { ApiService(KtorClient.httpClient) }//objeto para llamar a las funciones API
     var idCitaSeleccionada by remember { mutableStateOf<Int?>(null) }
 
     var mostrarDialogoAnulacion by rememberSaveable { mutableStateOf(false) }
     var mostrarDialogoBorrar by rememberSaveable { mutableStateOf(false) }
 
-    val scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope() //Para lanzar corrutinas
     val context = LocalContext.current
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
-
-
+    //Cargo las citas del usuario
     LaunchedEffect(key1 = idUsuario) {
         isLoading = true
         errorMessage = null
@@ -90,12 +90,15 @@ fun CitasUsuarioScreen(
         }
     }
 
+    //Declaración de estados para la expansión de las secciones
     var proximasExpanded by rememberSaveable { mutableStateOf(true) }
     var anterioresExpanded by rememberSaveable { mutableStateOf(true) }
 
+    //Formateo de fechas y horas
     val dateFormatter = remember { DateTimeFormatter.ISO_LOCAL_DATE }
     val timeFormatter = remember { DateTimeFormatter.ISO_LOCAL_TIME }
 
+    //Particiono las citas en proximas y anteriores
     val (proximasCitas, citasAnteriores) = remember(misCitas, dateFormatter, timeFormatter) {
         val hoy = LocalDate.now()
 
@@ -117,6 +120,7 @@ fun CitasUsuarioScreen(
             }
         }
 
+        //Ordeno las citas
         val proximasOrdenadas = listaDeProximasSinOrdenar.sortedWith(
             compareBy<Cita> {
                 try {
@@ -149,11 +153,11 @@ fun CitasUsuarioScreen(
             }
         )
 
+        //Devuelvo las citas ordenadas
         Pair(proximasOrdenadas, anterioresOrdenadas)
     }
 
-
-
+    //Estructura de la pantalla, con Scaffold, TopAppBar y BottomNavigationBar
     Scaffold(
         topBar = {
             TopAppBar(
@@ -248,6 +252,7 @@ fun CitasUsuarioScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                //Contenido de la pantalla, manejamos los estados de carga y error
                 when {
                     isLoading -> {
                         CircularProgressIndicator(modifier = Modifier.padding(top = 64.dp))
@@ -261,6 +266,7 @@ fun CitasUsuarioScreen(
                         )
                     }
 
+                    //Si no hay citas, mostramos un mensaje
                     misCitas.isEmpty() -> {
                         Text(
                             text = "No tienes citas programadas.",
@@ -269,6 +275,7 @@ fun CitasUsuarioScreen(
                         )
                     }
 
+                    //Si hay citas, mostramos la lista, tanto las proximas como las anteriores
                     else -> {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
@@ -432,6 +439,7 @@ fun CitasUsuarioScreen(
                     }
                 }
 
+                //Dialogos de anulación y borrado de cita
                 if (mostrarDialogoAnulacion) {
                     CustomAlertDialog(
                         "Anulación de cita",
